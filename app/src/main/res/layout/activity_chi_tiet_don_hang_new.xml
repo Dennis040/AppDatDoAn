@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- TextViews for displaying order information -->
+    <TextView
+        android:id="@+id/textViewMaDonHang"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Mã đơn hàng"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/textViewTrangThaiDonHang"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewMaDonHang"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Trạng thái"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/textViewTongTien"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewTrangThaiDonHang"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Tổng tiền"
+        android:textSize="18sp" />
+
+    <!-- RecyclerView to display order details -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewOrderDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewTongTien"
+        android:layout_marginTop="16dp" />
+
+    <!-- Button for accepting -->
+    <Button
+        android:id="@+id/buttonAccept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Accept" />
+
+    <!-- Button for completing -->
+    <Button
+        android:id="@+id/buttonComplete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/buttonAccept"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toEndOf="@id/buttonAccept"
+        android:text="Hoàn thành" />
+
+    <Button
+        android:id="@+id/buttoncanceled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/buttonAccept"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toEndOf="@id/buttonComplete"
+        android:text="Huy" />
+    <!--    <Button-->
+    <!--        android:id="@+id/buttoncanceled"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_alignParentTop="true"-->
+    <!--        android:layout_alignParentEnd="true"-->
+    <!--        android:layout_alignParentBottom="true"-->
+    <!--        android:layout_marginStart="14dp"-->
+    <!--        android:layout_marginTop="665dp"-->
+    <!--        android:layout_marginEnd="41dp"-->
+    <!--        android:layout_marginBottom="18dp"-->
+    <!--        android:layout_toEndOf="@+id/buttonComplete"-->
+    <!--        android:text="hủy" />-->
+
+</RelativeLayout>
