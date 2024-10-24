@@ -23,8 +23,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class OrderDetailsActivity extends AppCompatActivity {
@@ -33,7 +35,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     Statement smt;
     ResultSet resultSet;
 
-    TextView txt_order_id, txt_voucher, txt_total_money;
+    TextView txt_order_id, txt_voucher, txt_total_money,txt_priceship;
     Button btn_cancel_order;
     ImageButton btn_close;
 
@@ -52,7 +54,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         orderId = getIntent().getIntExtra("order_id", -1);
         voucherId = getIntent().getIntExtra("voucher_id", -1);
-
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedPrice = formatter.format(50000);
+        txt_priceship.setText(formattedPrice);
         if (orderId == -1) {
             Log.e("OrderDetailsActivity", "order_id is null");
         } else {
@@ -78,8 +82,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 resultSet = smt.executeQuery(query);
 
                 if (resultSet.next()) {
+                    NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                    String formattedPrice = formatter.format(resultSet.getDouble(1));
                     final double discount = resultSet.getDouble(1);
-                    txt_voucher.setText(String.valueOf(discount));
+                    txt_voucher.setText(formattedPrice);
                 }
                 connection.close();
             } catch (Exception e) {
@@ -115,10 +121,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                 double totalPrice = 0;
                 if (resultSet.next()) {
-                    totalPrice = resultSet.getDouble(1);
+                    NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                    String formattedPrice = formatter.format(resultSet.getDouble(1));
+                    txt_total_money.setText(formattedPrice);
                 }
-
-                txt_total_money.setText(String.valueOf(totalPrice));
 
                 connection.close();
                 orderDetailsAdapter.notifyDataSetChanged();
@@ -236,7 +242,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         txt_total_money = findViewById(R.id.txt_total_money);
         btn_cancel_order = findViewById(R.id.btn_cancel_order);
         btn_close = findViewById(R.id.btn_close);
-
+        txt_priceship = findViewById(R.id.txt_priceship);
         rcv_orderDetails = findViewById(R.id.rcv_orderDetails);
         orderDetailsList = new ArrayList<>();
         orderDetailsAdapter = new OrderDetailsAdapter(this, orderDetailsList);

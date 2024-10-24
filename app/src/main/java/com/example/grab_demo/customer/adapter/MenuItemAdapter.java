@@ -17,7 +17,9 @@ import com.example.grab_demo.R;
 import com.example.grab_demo.customer.m_interface.StClickItem;
 import com.example.grab_demo.customer.model.Item;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.HomeViewHolder> {
     Context context;
@@ -46,7 +48,10 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.HomeVi
         byte[] img = item.getImage();
 
         holder.txt_name.setText(item.getItemName());
-        holder.txt_price.setText(String.valueOf(item.getPrice()));
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedPrice = formatter.format(item.getPrice());
+        holder.txt_price.setText(formattedPrice);
+        //holder.txt_price.setText(String.valueOf(item.getPrice()));
 
         if (img != null) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(img, 0, img.length);

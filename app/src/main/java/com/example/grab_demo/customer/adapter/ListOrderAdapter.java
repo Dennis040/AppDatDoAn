@@ -23,7 +23,9 @@ import com.example.grab_demo.database.ConnectionClass;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class ListOrderAdapter extends RecyclerView.Adapter<ListOrderAdapter.HomeViewHolder> {
@@ -58,7 +60,10 @@ public class ListOrderAdapter extends RecyclerView.Adapter<ListOrderAdapter.Home
         Item item = itemList.get(position);
 
         holder.txt_name.setText(item.getItemName());
-        holder.txt_price.setText(String.valueOf(item.getPrice()));
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedPrice = formatter.format(item.getPrice());
+        holder.txt_price.setText(formattedPrice);
+        //holder.txt_price.setText(String.valueOf(item.getPrice()));
         byte[] img = item.getImage();
 
         if (img != null) {

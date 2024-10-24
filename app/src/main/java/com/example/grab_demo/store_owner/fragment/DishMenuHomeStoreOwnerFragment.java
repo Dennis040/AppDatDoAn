@@ -1,7 +1,10 @@
 package com.example.grab_demo.store_owner.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,7 +85,23 @@ public class DishMenuHomeStoreOwnerFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        searchView_DishMenuHSO.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+//        searchView_DishMenuHSO.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                dishMenuHSOAdapter.getFilter().filter(query);
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                dishMenuHSOAdapter.getFilter().filter(newText);
+//                return false;
+//            }
+//        });
+        searchView_DishMenuHSO.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            private Handler handler = new Handler();
+            private Runnable searchRunnable;
+
             @Override
             public boolean onQueryTextSubmit(String query) {
                 dishMenuHSOAdapter.getFilter().filter(query);
@@ -91,38 +110,80 @@ public class DishMenuHomeStoreOwnerFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                dishMenuHSOAdapter.getFilter().filter(newText);
-                return false;
+                if (searchRunnable != null) {
+                    handler.removeCallbacks(searchRunnable);
+                }
+                searchRunnable = () -> dishMenuHSOAdapter.getFilter().filter(newText);
+                handler.postDelayed(searchRunnable, 300); // Debounce 300ms
+                return true;
             }
         });
     }
 
+//    private void addDB() {
+//        ConnectionClass sql = new ConnectionClass();
+//        connection = sql.conClass();
+//        if (connection != null) {
+//            try {
+//                query = "SELECT item_name,description,price,image,quantity,item_id FROM Items WHERE store_id = " + storeID;
+//                smt = connection.createStatement();
+//                resultSet = smt.executeQuery(query);
+//                arr.clear();
+//                while (resultSet.next()) {
+//                    String dishName = resultSet.getString(1);
+//                    String description = resultSet.getString(2);
+//                    byte[] image = resultSet.getBytes(4);
+//                    Double gia = resultSet.getDouble(3);
+//                    Integer SL = resultSet.getInt(5);
+//                    Integer id = resultSet.getInt(6);
+//                    arr.add(new DishMenuHSO(image, id, dishName, description, gia, SL));
+//                }
+//                dishMenuHSOAdapter.notifyDataSetChanged();
+//                connection.close();
+//            } catch (Exception e) {
+//                Log.e("Error: ", e.getMessage());
+//            }
+//        } else {
+//            Log.e("Error: ", "Connection null");
+//        }
+//    }
+    @SuppressLint("StaticFieldLeak")
     private void addDB() {
-        ConnectionClass sql = new ConnectionClass();
-        connection = sql.conClass();
-        if (connection != null) {
-            try {
-                query = "SELECT item_name,description,price,image,quantity,item_id FROM Items WHERE store_id = " + storeID;
-                smt = connection.createStatement();
-                resultSet = smt.executeQuery(query);
-                arr.clear();
-                while (resultSet.next()) {
-                    String dishName = resultSet.getString(1);
-                    String description = resultSet.getString(2);
-                    byte[] image = resultSet.getBytes(4);
-                    Double gia = resultSet.getDouble(3);
-                    Integer SL = resultSet.getInt(5);
-                    Integer id = resultSet.getInt(6);
-                    arr.add(new DishMenuHSO(image, id, dishName, description, gia, SL));
+        new AsyncTask<Void, Void, ArrayList<DishMenuHSO>>() {
+            @Override
+            protected ArrayList<DishMenuHSO> doInBackground(Void... voids) {
+                ArrayList<DishMenuHSO> result = new ArrayList<>();
+                ConnectionClass sql = new ConnectionClass();
+                connection = sql.conClass();
+                if (connection != null) {
+                    try {
+                        query = "SELECT item_name,description,price,image,quantity,item_id FROM Items WHERE store_id = " + storeID;
+                        smt = connection.createStatement();
+                        resultSet = smt.executeQuery(query);
+                        while (resultSet.next()) {
+                            String dishName = resultSet.getString(1);
+                            String description = resultSet.getString(2);
+                            byte[] image = resultSet.getBytes(4);
+                            Double gia = resultSet.getDouble(3);
+                            Integer SL = resultSet.getInt(5);
+                            Integer id = resultSet.getInt(6);
+                            result.add(new DishMenuHSO(image, id, dishName, description, gia, SL));
+                        }
+                        connection.close();
+                    } catch (Exception e) {
+                        Log.e("Error: ", e.getMessage());
+                    }
                 }
-                dishMenuHSOAdapter.notifyDataSetChanged();
-                connection.close();
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
+                return result;
             }
-        } else {
-            Log.e("Error: ", "Connection null");
-        }
+
+            @Override
+            protected void onPostExecute(ArrayList<DishMenuHSO> result) {
+                arr.clear();
+                arr.addAll(result);
+                dishMenuHSOAdapter.notifyDataSetChanged();
+            }
+        }.execute();
     }
 
     private void addControls() {
@@ -136,23 +197,53 @@ public class DishMenuHomeStoreOwnerFragment extends Fragment {
         rv_DishMenuHSO.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
     }
 
+//    private void loadData() {
+//        ConnectionClass sql = new ConnectionClass();
+//        connection = sql.conClass();
+//        if (connection != null) {
+//            try {
+//                query = "SELECT store_name FROM Stores WHERE store_id = " + storeID;
+//                smt = connection.createStatement();
+//                resultSet = smt.executeQuery(query);
+//                while (resultSet.next()) {
+//                    tv_DishMenuHSO.setText(resultSet.getString(1));
+//                }
+//                connection.close();
+//            } catch (Exception e) {
+//                Log.e("Error: ", e.getMessage());
+//            }
+//        } else {
+//            Log.e("Error: ", "Connection null");
+//        }
+//    }
+    @SuppressLint("StaticFieldLeak")
     private void loadData() {
-        ConnectionClass sql = new ConnectionClass();
-        connection = sql.conClass();
-        if (connection != null) {
-            try {
-                query = "SELECT store_name FROM Stores WHERE store_id = " + storeID;
-                smt = connection.createStatement();
-                resultSet = smt.executeQuery(query);
-                while (resultSet.next()) {
-                    tv_DishMenuHSO.setText(resultSet.getString(1));
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... voids) {
+                String storeName = "";
+                ConnectionClass sql = new ConnectionClass();
+                connection = sql.conClass();
+                if (connection != null) {
+                    try {
+                        query = "SELECT store_name FROM Stores WHERE store_id = " + storeID;
+                        smt = connection.createStatement();
+                        resultSet = smt.executeQuery(query);
+                        if (resultSet.next()) {
+                            storeName = resultSet.getString(1);
+                        }
+                        connection.close();
+                    } catch (Exception e) {
+                        Log.e("Error: ", e.getMessage());
+                    }
                 }
-                connection.close();
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
+                return storeName;
             }
-        } else {
-            Log.e("Error: ", "Connection null");
-        }
+
+            @Override
+            protected void onPostExecute(String storeName) {
+                tv_DishMenuHSO.setText(storeName);
+            }
+        }.execute();
     }
 }

@@ -48,6 +48,16 @@ public class MenuHomeStoreOwnerActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.viewpager_MenuHSO, new DishMenuHomeStoreOwnerFragment());
         fragmentTransaction.commit();
     }
+//private void sendDatatoFragment() {
+//    DishMenuHomeStoreOwnerFragment fragment = new DishMenuHomeStoreOwnerFragment();
+//    Bundle args = new Bundle();
+//    args.putString("store_id", storeId);
+//    fragment.setArguments(args);
+//
+//    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+//    fragmentTransaction.replace(R.id.viewpager_MenuHSO, fragment);
+//    fragmentTransaction.commit();
+//}
 
     public String getStoreId() {
         return storeId;

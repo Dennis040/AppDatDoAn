@@ -28,8 +28,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class CartActivity extends AppCompatActivity {
@@ -167,6 +169,7 @@ public class CartActivity extends AppCompatActivity {
 
     private void calculateTotalMoney() {
         // Giả sử giá trị shipMoney và voucher
+
         shipMoney = 50000;
 
         // Tính toán Total Money
@@ -176,12 +179,19 @@ public class CartActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                txt_orderMoney.setText(String.valueOf(orderMoney));
-                txt_shipMoney.setText(String.valueOf(shipMoney));
+                NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                String formattedPrice = formatter.format(orderMoney);
+                txt_orderMoney.setText(formattedPrice);
+                //txt_orderMoney.setText(String.valueOf(orderMoney));
+                formattedPrice = formatter.format(shipMoney);
+                txt_shipMoney.setText(formattedPrice);
                 if (totalMoney < 0)
                     totalMoney = 0;
-                else
-                    txt_totalMoney.setText(String.valueOf(totalMoney));
+                else {
+                    formattedPrice = formatter.format(totalMoney);
+                    txt_totalMoney.setText(formattedPrice);
+                    //txt_totalMoney.setText(String.valueOf(totalMoney));
+                }
             }
         });
     }

@@ -13,7 +13,9 @@ import com.example.grab_demo.R;
 import com.example.grab_demo.customer.m_interface.StClickItem2;
 import com.example.grab_demo.customer.model.Order;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class C_OrderAdapter extends RecyclerView.Adapter<C_OrderAdapter.HomeViewHolder> {
     Context context;
@@ -42,7 +44,10 @@ public class C_OrderAdapter extends RecyclerView.Adapter<C_OrderAdapter.HomeView
 
         holder.txt_id_order.setText(String.valueOf(order.getOrderId()));
         holder.txt_id_delivery.setText(String.valueOf(order.getDeliveryId()));
-        holder.txt_total_money.setText(String.valueOf(order.getTotalPrice()));
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedPrice = formatter.format(order.getTotalPrice());
+        holder.txt_total_money.setText(formattedPrice);
+        //holder.txt_total_money.setText(String.valueOf(order.getTotalPrice()));
         holder.txt_status.setText(order.getStatus());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

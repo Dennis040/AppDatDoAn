@@ -20,6 +20,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Objects;
 
 public class OrderActivity extends AppCompatActivity {
@@ -65,7 +67,10 @@ public class OrderActivity extends AppCompatActivity {
                 if (resultSet.next()) {
                     txt_item_name.setText(resultSet.getString(1));
                     txt_description.setText(resultSet.getString(2));
-                    txt_price.setText(String.valueOf(resultSet.getDouble(3)));
+                    NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                    String formattedPrice = formatter.format(resultSet.getDouble(3));
+                    txt_price.setText(formattedPrice);
+                    //txt_price.setText(String.valueOf(resultSet.getDouble(3)));
                     byte[] image = resultSet.getBytes(4);
                     if (image != null) {
                         Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);

@@ -30,7 +30,9 @@ import com.example.grab_demo.store_owner.model.DishMenuHSO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class DishMenuHSOAdapter extends RecyclerView.Adapter<DishMenuHSOAdapter.ViewHolder> implements Filterable {
 
@@ -63,7 +65,10 @@ public class DishMenuHSOAdapter extends RecyclerView.Adapter<DishMenuHSOAdapter.
         Bitmap bitmap = BitmapFactory.decodeByteArray(hinhAlbumByteArray, 0, hinhAlbumByteArray.length);
         holder.img.setImageBitmap(bitmap);
         holder.txtTen.setText(dishMenuHSO.getTensp());
-        holder.txtGia.setText(dishMenuHSO.getGiasp() + "");
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedPrice = formatter.format(dishMenuHSO.getGiasp());
+        holder.txtGia.setText(formattedPrice);
+        //holder.txtGia.setText(dishMenuHSO.getGiasp() + "");
         holder.txtMoTa.setText(dishMenuHSO.getMota());
         holder.txtSL.setText(dishMenuHSO.getSoluong() + "");
         holder.getCurrentStoreStatus(dishMenuHSO.getId());

@@ -18,7 +18,9 @@ import com.example.grab_demo.database.ConnectionClass;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class OrderDetailsAdapter extends RecyclerView.Adapter<OrderDetailsAdapter.HomeViewHolder> {
     Context context;
@@ -44,11 +46,14 @@ public class OrderDetailsAdapter extends RecyclerView.Adapter<OrderDetailsAdapte
     @Override
     public void onBindViewHolder(@NonNull HomeViewHolder holder, int position) {
         OrderDetails orderDetails = storeList.get(position);
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         holder.txt_item_name.setText(getItemName(orderDetails.getItemId()));
-        holder.txt_item_price.setText(String.valueOf(orderDetails.getPrice()));
+        String formattedPrice = formatter.format(orderDetails.getPrice());
+        holder.txt_item_price.setText(formattedPrice);
         holder.txt_item_quantity.setText(String.valueOf(orderDetails.getQuantity()));
 
-        holder.txt_item_total.setText(String.valueOf(orderDetails.getPrice() * orderDetails.getQuantity()));
+        formattedPrice = formatter.format(orderDetails.getPrice() * orderDetails.getQuantity());
+        holder.txt_item_total.setText(formattedPrice);
 
     }
 
