@@ -10,7 +10,8 @@
         android:id="@+id/LinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <fragment
             android:id="@+id/map"
@@ -18,12 +19,22 @@
             android:layout_width="match_parent"
             android:layout_height="300dp" />
 
+        <!-- Styled Button 1 -->
         <Button
             android:id="@+id/btnOpenMap"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="openMapsActivity"
-            android:text="Open Maps" />
+            android:backgroundTint="@color/cam"
+            android:textColor="@color/white"
+            android:text="Open Maps"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="16dp"
+            android:elevation="4dp"
+            android:background="@drawable/rounded_button" />
 
         <FrameLayout
             android:id="@+id/fragment_container"
@@ -31,11 +42,20 @@
             android:layout_height="350dp"
             android:layout_marginTop="40dp" />
 
+        <!-- Styled Button 2 -->
         <Button
             android:id="@+id/btnDHNew"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="openFragment"
-            android:text="Đơn hàng mới" />
+            android:text="Đơn hàng mới"
+            android:backgroundTint="@color/cam"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="16dp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="16dp"
+            android:elevation="4dp"
+            android:background="@drawable/rounded_button" />
     </LinearLayout>
 </ScrollView>
