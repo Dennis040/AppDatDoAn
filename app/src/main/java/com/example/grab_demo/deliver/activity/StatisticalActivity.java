@@ -157,7 +157,7 @@ public class StatisticalActivity extends AppCompatActivity {
                     cashStatement.close();
 
                     // Tính tổng thu nhập
-                    totalIncome = new BigDecimal(orderCount).multiply(new BigDecimal("50.000"));
+                    totalIncome = new BigDecimal(orderCount).multiply(new BigDecimal("50000"));
 
                     connection.close();
                 } catch (SQLException e) {

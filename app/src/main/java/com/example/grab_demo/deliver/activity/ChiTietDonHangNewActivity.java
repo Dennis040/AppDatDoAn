@@ -25,6 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class ChiTietDonHangNewActivity extends AppCompatActivity {
 
@@ -217,8 +219,11 @@ public class ChiTietDonHangNewActivity extends AppCompatActivity {
                 orderDetailAdapter = new OrderDetailAdapter(this, orderDetails);
                 recyclerViewOrderDetails.setAdapter(orderDetailAdapter);
 
-                textViewTongTien.setText(totalAmount.toString() + " VND");
-
+                // Format the total amount in VND
+                Locale vietnamLocale = new Locale("vi", "VN");
+                NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(vietnamLocale);
+                String formattedAmount = currencyFormat.format(totalAmount);
+                textViewTongTien.setText(formattedAmount);
                 resultSet.close();
                 preparedStatement.close();
                 connection.close();
