@@ -6,10 +6,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,17 +26,27 @@ import com.example.grab_demo.R;
 import com.example.grab_demo.customer.adapter.ListOrderAdapter;
 import com.example.grab_demo.customer.model.Item;
 import com.example.grab_demo.database.ConnectionClass;
+import com.example.grab_demo.zalopay.Api.CreateOrder;
+
+import org.json.JSONObject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+
+//import vn.zalopay.sdk.Environment;
+//import vn.zalopay.sdk.ZaloPayError;
+//import vn.zalopay.sdk.ZaloPaySDK;
+//import vn.zalopay.sdk.listeners.PayOrderListener;
 
 public class CartActivity extends AppCompatActivity {
     private static final long REFRESH_INTERVAL = 1000; // 1s
@@ -41,7 +55,7 @@ public class CartActivity extends AppCompatActivity {
     String query, query2;
     Statement smt, smt2;
     ResultSet resultSet, resultSet2;
-
+    Spinner SP_order;
     RecyclerView rcv_cart;
     List<Item> itemList;
     ListOrderAdapter itemAdapter;
@@ -57,6 +71,8 @@ public class CartActivity extends AppCompatActivity {
     int userId;
     private Handler handler;
     private Runnable refreshRunnable;
+    List<String> listpay = new ArrayList<>();
+    int pay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +85,7 @@ public class CartActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         userId = sharedPreferences.getInt("user_id", -1);
-        Log.e("CartActivity", "userId is null");
+        Log.e("userId", String.valueOf(userId));
 
         if (voucherId == -1) {
             Log.e("CartActivity", "voucher_id is null");
@@ -86,9 +102,67 @@ public class CartActivity extends AppCompatActivity {
                 handler.postDelayed(this, REFRESH_INTERVAL);
             }
         };
+        createDataSpinnerPay();
+        //zaloPay();
         addEvents();
     }
 
+//    private void zaloPay() {
+//        StrictMode.ThreadPolicy policy = new
+//                StrictMode.ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(policy);
+//
+//        // ZaloPay SDK Init
+//        ZaloPaySDK.init(2553, Environment.SANDBOX);
+//    }
+
+//    private void orderzalopay() {
+//        //String totalText = String.valueOf(totalMoney).replaceAll("[^0-9]", ""); // Loại bỏ tất cả ký tự không phải số
+//        // Định dạng số mà không thêm dấu phân cách ngàn
+//        DecimalFormat df = new DecimalFormat("0.##");
+//        String totalText = df.format(totalMoney);
+//        Log.d("Amount",String.valueOf( totalMoney));
+//        CreateOrder orderApi = new CreateOrder();
+//        try {
+//            JSONObject data = orderApi.createOrder(totalText);
+//            Log.d("Amount", totalText);
+//            String code = data.getString("return_code");
+//            Toast.makeText(getApplicationContext(), "return_code: " + code, Toast.LENGTH_LONG).show();
+//
+//            if (code.equals("1")) {
+//                String token = data.getString("zp_trans_token");
+//                ZaloPaySDK.getInstance().payOrder(CartActivity.this, token, "demo://app", new PayOrderListener() {
+//                    @Override
+//                    public void onPaymentSucceeded(String s, String s1, String s2) {
+//                        insertDataToOrder(userId,"e-wallet");
+//                        Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
+//                        startActivity(new Intent(CartActivity.this, HomeActivity.class));
+//                        finish();
+//                    }
+//
+//                    @Override
+//                    public void onPaymentCanceled(String s, String s1) {
+//                        Toast.makeText(CartActivity.this, "Order Canceled!", Toast.LENGTH_SHORT).show();
+//                        Log.e("Order canceled","Order canceled");
+//                    }
+//
+//                    @Override
+//                    public void onPaymentError(ZaloPayError zaloPayError, String s, String s1) {
+//                        Toast.makeText(CartActivity.this, "Order Failed!", Toast.LENGTH_SHORT).show();
+//                        Log.e("Order Failed","Order Failed");
+//                    }
+//                });
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        ZaloPaySDK.getInstance().onResult(intent);
+//    }
     private void loadVoucherName(int voucherId) {
         ConnectionClass sql = new ConnectionClass();
         connection = sql.conClass();
@@ -196,7 +270,30 @@ public class CartActivity extends AppCompatActivity {
         });
     }
 
+    private void createDataSpinnerPay() {
+        listpay.add("Thanh toán tiền mặt");
+        listpay.add("Thanh toán qua zalopay");
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listpay);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        SP_order.setAdapter(adapter);
+    }
+
     private void addEvents() {
+        SP_order.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (listpay.get(position).equals("Thanh toán qua zalopay")) {
+                    pay = 1;
+                } else {
+                    pay = 0;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         img_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -229,10 +326,14 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (orderMoney > 0) {
-                    insertDataToOrder(userId);
+                    if (pay == 0) {
+                        insertDataToOrder(userId,"cash");
 //                clearCartItems(); // Xóa các item trong CartItems
-                    Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
-                    finish();
+                        Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else if (pay == 1) {
+                        //orderzalopay();
+                    }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(CartActivity.this);
                     builder.setTitle("Thông báo");
@@ -280,7 +381,7 @@ public class CartActivity extends AppCompatActivity {
     }
 
 
-    private void insertDataToOrder(int userId) {
+    private void insertDataToOrder(int userId,String cash) {
         ConnectionClass sql = new ConnectionClass();
         connection2 = sql.conClass();
 
@@ -303,21 +404,62 @@ public class CartActivity extends AppCompatActivity {
                 String shipMoneyText = txt_shipMoney.getText().toString();
                 double deliveryPrice;
                 try {
-                    deliveryPrice = Double.parseDouble(shipMoneyText);
-                } catch (NumberFormatException e) {
+                    // Loại bỏ ký tự tiền tệ và dấu cách
+                    shipMoneyText = shipMoneyText.replace("₫", "").trim();
+
+                    // Chuyển đổi dấu phân cách ngàn từ "." sang ","
+                    shipMoneyText = shipMoneyText.replace(".", ",");
+
+                    // Phân tích cú pháp chuỗi thành số
+                    NumberFormat format = NumberFormat.getInstance(new Locale("vi", "VN"));
+                    Number number = format.parse(shipMoneyText);
+
+                    // Chuyển sang kiểu dữ liệu mong muốn, ví dụ như Double
+                    deliveryPrice = number.doubleValue();
+
+                    System.out.println("Số tiền: " + deliveryPrice);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                     Log.e("CartActivity", "Invalid ship money format: " + e.getMessage());
                     return;
                 }
+
+//                try {
+//                    deliveryPrice = Double.parseDouble(shipMoneyText);
+//                } catch (NumberFormatException e) {
+//                    Log.e("CartActivity", "Invalid ship money format: " + e.getMessage());
+//                    return;
+//                }
 
                 // Kiểm tra và xử lý txt_totalMoney
                 String totalMoneyText = txt_totalMoney.getText().toString();
                 double totalPrice;
                 try {
-                    totalPrice = Double.parseDouble(totalMoneyText);
-                } catch (NumberFormatException e) {
-                    Log.e("CartActivity", "Invalid total money format: " + e.getMessage());
+                    // Loại bỏ ký tự tiền tệ và dấu cách
+                    totalMoneyText = totalMoneyText.replace("₫", "").trim();
+
+                    // Chuyển đổi dấu phân cách ngàn từ "." sang ","
+                    totalMoneyText = totalMoneyText.replace(".", ",");
+
+                    // Phân tích cú pháp chuỗi thành số
+                    NumberFormat format = NumberFormat.getInstance(new Locale("vi", "VN"));
+                    Number number = format.parse(totalMoneyText);
+
+                    // Chuyển sang kiểu dữ liệu mong muốn, ví dụ như Double
+                    totalPrice = number.doubleValue();
+
+                    System.out.println("Số tiền: " + totalPrice);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    Log.e("CartActivity", "Invalid ship money format: " + e.getMessage());
                     return;
                 }
+//                try {
+//                    totalPrice = Double.parseDouble(totalMoneyText);
+//                } catch (NumberFormatException e) {
+//                    Log.e("CartActivity", "Invalid total money format: " + e.getMessage());
+//                    return;
+//                }
 
                 // Lấy store_id từ CartItems
                 String query1 = "SELECT i.store_id FROM CartItems c JOIN Items i ON c.item_id = i.item_id WHERE c.cart_id = 1";
@@ -340,7 +482,7 @@ public class CartActivity extends AppCompatActivity {
                 insertStmt.setInt(2, storeId);
                 insertStmt.setDouble(3, deliveryPrice);
                 insertStmt.setDouble(4, totalPrice);
-                insertStmt.setString(5, "cash");
+                insertStmt.setString(5, cash);
                 if (voucherId == -1) { // Kiểm tra nếu voucherId là null
                     insertStmt.setNull(6, java.sql.Types.INTEGER);
                 } else {
@@ -439,7 +581,7 @@ public class CartActivity extends AppCompatActivity {
         img_back = findViewById(R.id.img_back);
         btn_orderNow = findViewById(R.id.btn_orderNow);
         btn_getVoucher = findViewById(R.id.btn_getVoucher);
-
+        SP_order = findViewById(R.id.SP_order);
         rcv_cart = findViewById(R.id.rcv_cart);
         itemList = new ArrayList<>();
         itemAdapter = new ListOrderAdapter(this, itemList);

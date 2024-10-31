@@ -16,7 +16,13 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/NOTICE.txt")
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,7 +42,15 @@ android {
 }
 
 dependencies {
-
+    implementation(
+        fileTree(
+            mapOf(
+                "dir" to "E:\\ZaloPayLib",
+                "include" to listOf("*.aar", "*.jar"),
+                "exclude" to listOf("")
+            )
+        )
+    )
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("com.google.maps:google-maps-services:0.18.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

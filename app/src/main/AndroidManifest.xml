@@ -56,7 +56,20 @@
             android:exported="false" />
         <activity
             android:name=".customer.activity.CartActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:label="Grab Demo"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="app"
+                    android:scheme="demo" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".store_owner.activity.RevenueHSOActivity"
             android:exported="false"
