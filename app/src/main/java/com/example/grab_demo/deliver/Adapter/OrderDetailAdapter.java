@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.grab_demo.R;
 import com.example.grab_demo.model.OrderDetail;
-
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.ViewHolder> {
     private Context context;
@@ -35,7 +36,11 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         OrderDetail orderDetail = orderDetailList.get(position);
         holder.txtItemName.setText(orderDetail.getDescription());
         holder.txtQuantity.setText(String.valueOf(orderDetail.getQuantity()));
-        holder.txtPrice.setText(orderDetail.getPrice().toString());
+        // Format price in VND
+        Locale vietnamLocale = new Locale("vi", "VN");
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(vietnamLocale);
+        String formattedPrice = currencyFormat.format(orderDetail.getPrice());
+        holder.txtPrice.setText(formattedPrice);
     }
 
     @Override

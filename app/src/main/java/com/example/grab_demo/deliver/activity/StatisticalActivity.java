@@ -17,6 +17,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class StatisticalActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "StatisticalPrefs";
@@ -155,7 +157,7 @@ public class StatisticalActivity extends AppCompatActivity {
                     cashStatement.close();
 
                     // Tính tổng thu nhập
-                    totalIncome = new BigDecimal(orderCount).multiply(new BigDecimal("50.00"));
+                    totalIncome = new BigDecimal(orderCount).multiply(new BigDecimal("50000"));
 
                     connection.close();
                 } catch (SQLException e) {
@@ -168,10 +170,18 @@ public class StatisticalActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(QueryResult result) {
+            // Định dạng số thành tiền tệ Việt Nam
+            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+
+            // Định dạng thu nhập từ các chuyến đi và tiền mặt đã thu
+            String formattedIncome = currencyFormatter.format(result.totalIncome);
+            String formattedCashCollected = currencyFormatter.format(result.totalCashCollected);
+
             // Cập nhật giao diện người dùng
-            tv_so_chuyen_di.setText("" + result.orderCount);
-            tv_thu_nhap_chuyen_di.setText("" + result.totalIncome.toString() + " VND");
-            tv_da_thu_tien_mat.setText("" + result.totalCashCollected.toString() + " VND");
+            tv_so_chuyen_di.setText(String.valueOf(result.orderCount));
+            tv_thu_nhap_chuyen_di.setText(formattedIncome);
+            tv_da_thu_tien_mat.setText(formattedCashCollected);
         }
+
     }
 }
