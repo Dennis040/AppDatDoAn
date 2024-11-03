@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# .gitignore
+app/src/main/res/raw/chatbot.json
