@@ -18,6 +18,9 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.grab_demo.R;
 import com.example.grab_demo.databinding.ActivityMapsBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -108,9 +111,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.setMyLocationEnabled(true);
 
-                fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                // Yêu cầu cập nhật vị trí thay vì chỉ lấy vị trí cuối cùng
+                fusedLocationClient.requestLocationUpdates(LocationRequest.create(), new LocationCallback() {
                     @Override
-                    public void onSuccess(Location location) {
+                    public void onLocationResult(LocationResult locationResult) {
+                        if (locationResult == null) {
+                            Log.e("MapsActivity", "Location result is null");
+                            return;
+                        }
+
+                        Location location = locationResult.getLastLocation();
                         if (location != null) {
                             currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f));
@@ -119,7 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Log.e("MapsActivity", "Failed to get current location");
                         }
                     }
-                });
+                }, getMainLooper());
             }
         }
     }

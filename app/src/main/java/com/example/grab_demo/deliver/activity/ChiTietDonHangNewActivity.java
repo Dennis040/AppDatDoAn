@@ -143,23 +143,59 @@ public class ChiTietDonHangNewActivity extends AppCompatActivity {
             Connection connection = connectionClass.conClass();
             if (connection != null) {
                 try {
-                    String query = "UPDATE Orders SET status = ?, delivery_id = ? WHERE order_id = ?";
-                    PreparedStatement preparedStatement = connection.prepareStatement(query);
-                    preparedStatement.setString(1, status);
-                    preparedStatement.setString(2, userId);
-                    preparedStatement.setInt(3, donHang.getOrderId());
+                    // Bước 1: Cập nhật trạng thái của đơn hàng
+                    String updateQuery = "UPDATE Orders SET status = ?, updated_at = GETDATE() WHERE order_id = ?";
+                    PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
+                    updateStatement.setString(1, status);
+                    updateStatement.setInt(2, donHang.getOrderId());
 
-                    int rowsAffected = preparedStatement.executeUpdate();
-                    preparedStatement.close();
-                    connection.close();
+                    int rowsAffected = updateStatement.executeUpdate();
+                    updateStatement.close();
 
                     if (rowsAffected > 0) {
                         Toast.makeText(ChiTietDonHangNewActivity.this, "Cập nhật trạng thái thành công", Toast.LENGTH_SHORT).show();
-                        // Update button states after successful status update
-                        updateButtonStates();
+
+                        // Bước 2: Kiểm tra khoảng thời gian giữa updated_at và created_at
+                        String timeCheckQuery = "SELECT DATEDIFF(MINUTE, created_at, updated_at) AS time_diff FROM Orders WHERE order_id = ?";
+                        PreparedStatement timeCheckStatement = connection.prepareStatement(timeCheckQuery);
+                        timeCheckStatement.setInt(1, donHang.getOrderId());
+
+                        ResultSet resultSet = timeCheckStatement.executeQuery();
+                        if (resultSet.next()) {
+                            int timeDiff = resultSet.getInt("time_diff");
+
+                            // Nếu thời gian giữa created_at và updated_at > 30 phút
+                            if (timeDiff > 30) {
+                                // Bước 3: Cập nhật flag của user nếu flag hiện tại là 1
+                                String flagCheckQuery = "SELECT flag FROM Users WHERE user_id = ?";
+                                PreparedStatement flagCheckStatement = connection.prepareStatement(flagCheckQuery);
+                                flagCheckStatement.setString(1, userId);
+
+                                ResultSet flagResult = flagCheckStatement.executeQuery();
+                                if (flagResult.next()) {
+                                    int flag = flagResult.getInt("flag");
+
+                                    if (flag == 1) {
+                                        // Cập nhật flag thành 0
+                                        String updateFlagQuery = "UPDATE Users SET flag = 0 WHERE user_id = ?";
+                                        PreparedStatement updateFlagStatement = connection.prepareStatement(updateFlagQuery);
+                                        updateFlagStatement.setString(1, userId);
+                                        updateFlagStatement.executeUpdate();
+                                        updateFlagStatement.close();
+                                    }
+                                }
+                                flagResult.close();
+                                flagCheckStatement.close();
+                            }
+                        }
+                        resultSet.close();
+                        timeCheckStatement.close();
                     } else {
                         Toast.makeText(ChiTietDonHangNewActivity.this, "Không tìm thấy đơn hàng để cập nhật", Toast.LENGTH_SHORT).show();
                     }
+
+                    connection.close();
+                    updateButtonStates(); // Cập nhật trạng thái các nút
                 } catch (SQLException e) {
                     e.printStackTrace();
                     Log.e("SQL Error", e.getMessage());

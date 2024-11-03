@@ -93,6 +93,11 @@ dependencies {
     implementation("com.github.blackfizz:eazegraph:1.2.2@aar")
     implementation("com.nineoldandroids:library:2.4.0")
     implementation("com.makeramen:roundedimageview:2.3.0")
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.maps:google-maps-services:2.1.2")
+    implementation ("org.slf4j:slf4j-simple:1.7.25")
+//    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.stripe:stripe-android:20.53.0")
     //implementation("com.stripe:stripe-android:17.2.0")
@@ -102,5 +107,4 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-process:2.6") // hoặc phiên bản mới hơn
 
 //    implementation("com.microsoft.sqlserver:mssql-jdbc:12.6.0.jre8")  // Sử dụng phiên bản mới nhất nếu có
-
 }

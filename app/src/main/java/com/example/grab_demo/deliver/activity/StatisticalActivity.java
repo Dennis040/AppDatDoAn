@@ -173,15 +173,68 @@ public class StatisticalActivity extends AppCompatActivity {
             // Định dạng số thành tiền tệ Việt Nam
             NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
+            // Tính tiền thưởng
+            BigDecimal bonus = BigDecimal.ZERO;
+            if (result.orderCount >= 10) {
+                int multiplier = result.orderCount / 10; // Bội số của 10
+                bonus = new BigDecimal(multiplier).multiply(new BigDecimal("50000")); // Thêm 50,000 VND cho mỗi 10 chuyến đi
+            }
+
+            // Thêm tiền thưởng vào tổng thu nhập
+            BigDecimal totalIncomeWithBonus = result.totalIncome.add(bonus);
+
             // Định dạng thu nhập từ các chuyến đi và tiền mặt đã thu
-            String formattedIncome = currencyFormatter.format(result.totalIncome);
+            String formattedIncome = currencyFormatter.format(totalIncomeWithBonus);
             String formattedCashCollected = currencyFormatter.format(result.totalCashCollected);
 
             // Cập nhật giao diện người dùng
             tv_so_chuyen_di.setText(String.valueOf(result.orderCount));
             tv_thu_nhap_chuyen_di.setText(formattedIncome);
             tv_da_thu_tien_mat.setText(formattedCashCollected);
+            // Kiểm tra nếu tài xế đã đạt 20 chuyến đi và cập nhật cột flag
+            if (result.orderCount >= 20) {
+                new UpdateFlagTask().execute(userId);
+            }
         }
+    }
+    private class UpdateFlagTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            String userId = params[0];
 
+            ConnectionClass connectionClass = new ConnectionClass();
+            Connection connection = connectionClass.conClass();
+
+            if (connection != null) {
+                try {
+                    // Kiểm tra giá trị hiện tại của flag
+                    String checkFlagQuery = "SELECT flag FROM Users WHERE user_id = ?";
+                    PreparedStatement checkFlagStatement = connection.prepareStatement(checkFlagQuery);
+                    checkFlagStatement.setString(1, userId);
+                    ResultSet flagResult = checkFlagStatement.executeQuery();
+
+                    int flag = 0;
+                    if (flagResult.next()) {
+                        flag = flagResult.getInt("flag");
+                    }
+                    flagResult.close();
+                    checkFlagStatement.close();
+
+                    // Nếu flag hiện tại là 0, cập nhật flag thành 1
+                    if (flag == 0) {
+                        String updateFlagQuery = "UPDATE Users SET flag = 1 WHERE user_id = ?";
+                        PreparedStatement updateFlagStatement = connection.prepareStatement(updateFlagQuery);
+                        updateFlagStatement.setString(1, userId);
+                        updateFlagStatement.executeUpdate();
+                        updateFlagStatement.close();
+                    }
+
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
     }
 }
