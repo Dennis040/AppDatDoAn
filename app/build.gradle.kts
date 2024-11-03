@@ -94,10 +94,13 @@ dependencies {
     implementation("com.nineoldandroids:library:2.4.0")
     implementation("com.makeramen:roundedimageview:2.3.0")
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation("com.stripe:stripe-android:17.2.0")
-    implementation("com.stripe:stripe-java:22.2.0")
+    implementation("com.stripe:stripe-android:20.53.0")
+    //implementation("com.stripe:stripe-android:17.2.0")
+    implementation("com.stripe:stripe-java:28.0.0")
     implementation("com.android.volley:volley:1.2.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation ("androidx.lifecycle:lifecycle-process:2.6") // hoặc phiên bản mới hơn
+
 //    implementation("com.microsoft.sqlserver:mssql-jdbc:12.6.0.jre8")  // Sử dụng phiên bản mới nhất nếu có
 
 }
