@@ -480,8 +480,8 @@ public class CartActivity extends AppCompatActivity {
                 PreparedStatement insertStmt = connection2.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                 insertStmt.setInt(1, customerId);
                 insertStmt.setInt(2, storeId);
-                insertStmt.setDouble(3, deliveryPrice);
-                insertStmt.setDouble(4, totalPrice);
+                insertStmt.setDouble(3, deliveryPrice*100);
+                insertStmt.setDouble(4, totalPrice*100);
                 insertStmt.setString(5, cash);
                 if (voucherId == -1) { // Kiểm tra nếu voucherId là null
                     insertStmt.setNull(6, java.sql.Types.INTEGER);

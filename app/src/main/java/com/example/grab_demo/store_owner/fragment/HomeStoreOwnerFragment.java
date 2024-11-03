@@ -24,15 +24,18 @@ import com.example.grab_demo.store_owner.activity.MenuHomeStoreOwnerActivity;
 import com.example.grab_demo.store_owner.activity.OrderHomeStoreOwnerActivity;
 import com.example.grab_demo.store_owner.activity.RevenueHSOActivity;
 import com.example.grab_demo.store_owner.activity.StoreOwnerActivity;
+import com.example.grab_demo.store_owner.activity.ThongKeActivity;
 import com.example.grab_demo.store_owner.adapter.ImageSliderAdapter_Home;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -139,7 +142,7 @@ public class HomeStoreOwnerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Tạo Intent để chuyển sang Activity mới
-                Intent intent = new Intent(getActivity(), RevenueHSOActivity.class);
+                Intent intent = new Intent(getActivity(), ThongKeActivity.class);
                 // Đính kèm dữ liệu vào Intent
                 intent.putExtra("store_id", storeID);
                 // Chuyển sang Activity mới
@@ -294,7 +297,9 @@ public class HomeStoreOwnerFragment extends Fragment {
                         revenueToday += (total_price.subtract(delivery_price).doubleValue());
                     }
                 }
-                tv_revenue_today.setText(revenueToday + " đ");
+                NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                String formattedPrice = formatter.format(revenueToday);
+                tv_revenue_today.setText(formattedPrice);
                 connection.close();
             } catch (Exception e) {
                 Log.e("Error: ", e.getMessage());
@@ -334,7 +339,10 @@ public class HomeStoreOwnerFragment extends Fragment {
                         }
                     }
                 }
-                tv_revenue_yesterday.setText(revenueYesterday + " đ");
+                NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                String formattedPrice = formatter.format(revenueYesterday);
+                tv_revenue_yesterday.setText(formattedPrice);
+//                tv_revenue_yesterday.setText(revenueYesterday + " đ");
                 connection.close();
             } catch (Exception e) {
                 Log.e("Error: ", e.getMessage());

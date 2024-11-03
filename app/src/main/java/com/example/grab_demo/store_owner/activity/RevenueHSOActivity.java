@@ -20,9 +20,11 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class RevenueHSOActivity extends AppCompatActivity {
     Spinner SP_startDay_revenueHSO, SP_endDay_revenueHSO;
@@ -85,7 +87,7 @@ public class RevenueHSOActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Tạo Intent để chuyển sang Activity mới
-                Intent intent = new Intent(RevenueHSOActivity.this, Revenue_Month.class);
+                Intent intent = new Intent(RevenueHSOActivity.this, ThongKeActivity.class);
                 // Đính kèm dữ liệu vào Intent
                 intent.putExtra("store_id", storeId);
                 // Chuyển sang Activity mới
@@ -139,7 +141,10 @@ public class RevenueHSOActivity extends AppCompatActivity {
                         }
                     }
                 }
-                tv_revenueHSO.setText(revenue + " đ");
+                NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                String formattedPrice = formatter.format(revenue);
+                tv_revenueHSO.setText(formattedPrice);
+                //tv_revenueHSO.setText(revenue + " đ");
                 connection.close();
             } catch (Exception e) {
                 Log.e("Error: ", e.getMessage());
