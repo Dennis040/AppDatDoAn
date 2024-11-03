@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.grab_demo.ChatBotActivity;
 import com.example.grab_demo.R;
 import com.example.grab_demo.customer.activity.CartActivity;
 import com.example.grab_demo.customer.activity.HomeActivity;
@@ -47,7 +50,7 @@ public class HomeFragment extends Fragment {
     String query;
     Statement smt;
     ResultSet resultSet;
-
+    ImageButton btn_chatbot;
     RecyclerView rcv_header, rcv_second, rcv_voucher;
     List<Category> filterCategory, categoryList, categoryList2, categoryListVoucher;
     List<Store> storeList;
@@ -248,6 +251,12 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        btn_chatbot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), ChatBotActivity.class));
+            }
+        });
     }
 
     private void filter(String text) {
@@ -263,7 +272,7 @@ public class HomeFragment extends Fragment {
     private void addControls() {
         img_cart = view.findViewById(R.id.img_cart);
         txtCartBadge = view.findViewById(R.id.txt_cart_badge);
-
+        btn_chatbot = view.findViewById(R.id.btn_chatbot);
         filterCategory = new ArrayList<>();
         categoryList = new ArrayList<>();
         categoryList2 = new ArrayList<>();

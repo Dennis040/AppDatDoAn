@@ -21,12 +21,19 @@
                 android:layout_margin="10dp"
                 android:orientation="horizontal">
 
+
                 <ImageButton
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_gravity="center"
                     android:background="@drawable/ic_back" />
-
+                <ImageButton
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginStart="5dp"
+                    android:id="@+id/btn_chatbot"
+                    android:layout_gravity="center"
+                    android:background="@drawable/icon_bot" />
                 <androidx.appcompat.widget.SearchView
                     android:id="@+id/searchView"
                     android:layout_width="wrap_content"

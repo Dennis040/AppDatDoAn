@@ -1,27 +1,27 @@
 [versions]
-agp = "8.5.0"
+agp = "8.6.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
-material = "1.11.0"
-activity = "1.8.0"
-constraintlayout = "2.1.4"
+material = "1.12.0"
+activity = "1.9.3"
+constraintlayout = "2.2.0"
 roomCompilerProcessingTesting = "2.6.1"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 playServicesMaps = "18.1.0"
 playServicesLocation = "21.3.0"
 legacySupportV4 = "1.0.0"
-lifecycleLivedataKtx = "2.8.2"
-lifecycleViewmodelKtx = "2.8.2"
-navigationFragment = "2.7.7"
-navigationUi = "2.7.7"
+lifecycleLivedataKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.8.7"
+navigationFragment = "2.8.3"
+navigationUi = "2.8.3"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.6.1" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.7.0" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
