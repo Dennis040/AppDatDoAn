@@ -43,10 +43,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import vn.zalopay.sdk.Environment;
-import vn.zalopay.sdk.ZaloPayError;
-import vn.zalopay.sdk.ZaloPaySDK;
-import vn.zalopay.sdk.listeners.PayOrderListener;
+//import vn.zalopay.sdk.Environment;
+//import vn.zalopay.sdk.ZaloPayError;
+//import vn.zalopay.sdk.ZaloPaySDK;
+//import vn.zalopay.sdk.listeners.PayOrderListener;
 
 public class CartActivity extends AppCompatActivity {
     private static final long REFRESH_INTERVAL = 1000; // 1s
@@ -103,66 +103,66 @@ public class CartActivity extends AppCompatActivity {
             }
         };
         createDataSpinnerPay();
-        zaloPay();
+        //zaloPay();
         addEvents();
     }
 
-    private void zaloPay() {
-        StrictMode.ThreadPolicy policy = new
-                StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+//    private void zaloPay() {
+//        StrictMode.ThreadPolicy policy = new
+//                StrictMode.ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(policy);
+//
+//        // ZaloPay SDK Init
+//        ZaloPaySDK.init(2553, Environment.SANDBOX);
+//    }
 
-        // ZaloPay SDK Init
-        ZaloPaySDK.init(2553, Environment.SANDBOX);
-    }
-
-    private void orderzalopay() {
-        //String totalText = String.valueOf(totalMoney).replaceAll("[^0-9]", ""); // Loại bỏ tất cả ký tự không phải số
-        // Định dạng số mà không thêm dấu phân cách ngàn
-        DecimalFormat df = new DecimalFormat("0.##");
-        String totalText = df.format(totalMoney);
-        Log.d("Amount",String.valueOf( totalMoney));
-        CreateOrder orderApi = new CreateOrder();
-        try {
-            JSONObject data = orderApi.createOrder(totalText);
-            Log.d("Amount", totalText);
-            String code = data.getString("return_code");
-            Toast.makeText(getApplicationContext(), "return_code: " + code, Toast.LENGTH_LONG).show();
-
-            if (code.equals("1")) {
-                String token = data.getString("zp_trans_token");
-                ZaloPaySDK.getInstance().payOrder(CartActivity.this, token, "demo://app", new PayOrderListener() {
-                    @Override
-                    public void onPaymentSucceeded(String s, String s1, String s2) {
-                        insertDataToOrder(userId,"e-wallet");
-                        Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(CartActivity.this, HomeActivity.class));
-                        finish();
-                    }
-
-                    @Override
-                    public void onPaymentCanceled(String s, String s1) {
-                        Toast.makeText(CartActivity.this, "Order Canceled!", Toast.LENGTH_SHORT).show();
-                        Log.e("Order canceled","Order canceled");
-                    }
-
-                    @Override
-                    public void onPaymentError(ZaloPayError zaloPayError, String s, String s1) {
-                        Toast.makeText(CartActivity.this, "Order Failed!", Toast.LENGTH_SHORT).show();
-                        Log.e("Order Failed","Order Failed");
-                    }
-                });
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        ZaloPaySDK.getInstance().onResult(intent);
-    }
+//    private void orderzalopay() {
+//        //String totalText = String.valueOf(totalMoney).replaceAll("[^0-9]", ""); // Loại bỏ tất cả ký tự không phải số
+//        // Định dạng số mà không thêm dấu phân cách ngàn
+//        DecimalFormat df = new DecimalFormat("0.##");
+//        String totalText = df.format(totalMoney);
+//        Log.d("Amount",String.valueOf( totalMoney));
+//        CreateOrder orderApi = new CreateOrder();
+//        try {
+//            JSONObject data = orderApi.createOrder(totalText);
+//            Log.d("Amount", totalText);
+//            String code = data.getString("return_code");
+//            Toast.makeText(getApplicationContext(), "return_code: " + code, Toast.LENGTH_LONG).show();
+//
+//            if (code.equals("1")) {
+//                String token = data.getString("zp_trans_token");
+//                ZaloPaySDK.getInstance().payOrder(CartActivity.this, token, "demo://app", new PayOrderListener() {
+//                    @Override
+//                    public void onPaymentSucceeded(String s, String s1, String s2) {
+//                        insertDataToOrder(userId,"e-wallet");
+//                        Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
+//                        startActivity(new Intent(CartActivity.this, HomeActivity.class));
+//                        finish();
+//                    }
+//
+//                    @Override
+//                    public void onPaymentCanceled(String s, String s1) {
+//                        Toast.makeText(CartActivity.this, "Order Canceled!", Toast.LENGTH_SHORT).show();
+//                        Log.e("Order canceled","Order canceled");
+//                    }
+//
+//                    @Override
+//                    public void onPaymentError(ZaloPayError zaloPayError, String s, String s1) {
+//                        Toast.makeText(CartActivity.this, "Order Failed!", Toast.LENGTH_SHORT).show();
+//                        Log.e("Order Failed","Order Failed");
+//                    }
+//                });
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        ZaloPaySDK.getInstance().onResult(intent);
+//    }
     private void loadVoucherName(int voucherId) {
         ConnectionClass sql = new ConnectionClass();
         connection = sql.conClass();
@@ -332,7 +332,7 @@ public class CartActivity extends AppCompatActivity {
                         Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
                         finish();
                     } else if (pay == 1) {
-                        orderzalopay();
+                        //orderzalopay();
                     }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(CartActivity.this);
