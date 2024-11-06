@@ -88,14 +88,16 @@ public class StoreListActivity extends AppCompatActivity {
 
                 storeList.clear();
                 while (resultSet.next()) {
-                    int storeId = resultSet.getInt(1);
-                    String storeName = resultSet.getString(2);
-                    int ownerId = resultSet.getInt(3);
-                    String status = resultSet.getString(4);
-                    String openStore = resultSet.getString(6);
-                    byte[] image = resultSet.getBytes(7);
-                    String address = resultSet.getString(8);
-                    storeList.add(new Store(storeId, storeName, cateId, image, status, address));
+                    if(resultSet.getString(4).equalsIgnoreCase("opened")||resultSet.getString(4).equalsIgnoreCase("closed")) {
+                        int storeId = resultSet.getInt(1);
+                        String storeName = resultSet.getString(2);
+                        int ownerId = resultSet.getInt(3);
+                        String status = resultSet.getString(4);
+                        String openStore = resultSet.getString(6);
+                        byte[] image = resultSet.getBytes(7);
+                        String address = resultSet.getString(8);
+                        storeList.add(new Store(storeId, storeName, cateId, image, status, address));
+                    }
                 }
                 storeListAdapter.notifyDataSetChanged();
                 connection.close();
