@@ -2,9 +2,11 @@ package com.example.grab_demo.deliver.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,11 +26,17 @@ public class StatisticalActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "StatisticalPrefs";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_ACCUMULATED_TIME = "accumulatedTime";
+    private static final int COLOR_GREEN = Color.parseColor("#00B14F");
+    private static final int COLOR_RED = Color.RED;
+
     private TextView tv_thu_nhap_chuyen_di, tv_da_thu_tien_mat, tv_thoi_gian_truc_tuyen, tv_so_chuyen_di;
+    private View Color_report;
     private long startTime;
     private long accumulatedTime = 0;
     private String userId;
     private Handler handler = new Handler();
+
+    // Runnable để cập nhật thời gian hoạt động
     private Runnable updateTimeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -37,11 +45,20 @@ public class StatisticalActivity extends AppCompatActivity {
         }
     };
 
+    // Runnable để kiểm tra trạng thái flag
+    private Runnable checkFlagRunnable = new Runnable() {
+        @Override
+        public void run() {
+            new CheckFlagTask().execute(userId);
+            handler.postDelayed(this, 5000); // Kiểm tra mỗi 5 giây
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistical);
-
+        Color_report = findViewById(R.id.Color_report);
         tv_thoi_gian_truc_tuyen = findViewById(R.id.tv_thoi_gian_truc_tuyen);
         tv_so_chuyen_di = findViewById(R.id.tv_so_chuyen_di);
         tv_thu_nhap_chuyen_di = findViewById(R.id.tv_thu_nhap_chuyen_di);
@@ -58,10 +75,11 @@ public class StatisticalActivity extends AppCompatActivity {
         startTime = prefs.getLong(KEY_START_TIME, System.currentTimeMillis());
         accumulatedTime = prefs.getLong(KEY_ACCUMULATED_TIME, 0);
 
-        // Cập nhật thời gian hoạt động mỗi giây
+        // Bắt đầu Runnable cập nhật thời gian và kiểm tra flag
         handler.post(updateTimeRunnable);
+        handler.post(checkFlagRunnable);
 
-        // Thực hiện truy vấn
+        // Thực hiện truy vấn ban đầu
         if (userId != null) {
             new QueryTask().execute(userId);
         }
@@ -70,34 +88,36 @@ public class StatisticalActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // Lưu thời gian bắt đầu và thời gian tích lũy vào SharedPreferences
         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
         editor.putLong(KEY_START_TIME, System.currentTimeMillis());
         editor.putLong(KEY_ACCUMULATED_TIME, accumulatedTime + (System.currentTimeMillis() - startTime));
         editor.apply();
-        handler.removeCallbacks(updateTimeRunnable); // Ngừng cập nhật khi Activity bị dừng
+
+        // Dừng Runnable khi Activity dừng
+        handler.removeCallbacks(updateTimeRunnable);
+        handler.removeCallbacks(checkFlagRunnable);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // Lấy lại thời gian bắt đầu và thời gian tích lũy từ SharedPreferences
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         startTime = prefs.getLong(KEY_START_TIME, System.currentTimeMillis());
         accumulatedTime = prefs.getLong(KEY_ACCUMULATED_TIME, accumulatedTime);
-        handler.post(updateTimeRunnable); // Bắt đầu cập nhật lại khi Activity tiếp tục
+
+        // Khởi động lại Runnable khi Activity tiếp tục
+        handler.post(updateTimeRunnable);
+        handler.post(checkFlagRunnable);
     }
 
     private void updateActivityTime() {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = accumulatedTime + (currentTime - startTime);
 
-        // Chuyển đổi thành giờ, phút, giây
         int seconds = (int) (elapsedTime / 1000) % 60;
         int minutes = (int) ((elapsedTime / (1000 * 60)) % 60);
         int hours = (int) ((elapsedTime / (1000 * 60 * 60)) % 24);
 
-        // Hiển thị thời gian hoạt động
         String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
         tv_thoi_gian_truc_tuyen.setText(timeString);
     }
@@ -128,7 +148,6 @@ public class StatisticalActivity extends AppCompatActivity {
 
             if (connection != null) {
                 try {
-                    // Đếm số đơn hàng đã giao
                     String countQuery = "SELECT COUNT(*) FROM Orders WHERE delivery_id = ? AND status = 'delivered'";
                     PreparedStatement countStatement = connection.prepareStatement(countQuery);
                     countStatement.setString(1, userId);
@@ -140,7 +159,6 @@ public class StatisticalActivity extends AppCompatActivity {
                     countResult.close();
                     countStatement.close();
 
-                    // Tính tổng tiền mặt thu được
                     String cashQuery = "SELECT o.total_price, o.delivery_price " +
                             "FROM Orders o " +
                             "WHERE o.delivery_id = ? AND o.status = 'delivered' AND o.payment_method = 'cash'";
@@ -156,7 +174,6 @@ public class StatisticalActivity extends AppCompatActivity {
                     cashResult.close();
                     cashStatement.close();
 
-                    // Tính tổng thu nhập
                     totalIncome = new BigDecimal(orderCount).multiply(new BigDecimal("50000"));
 
                     connection.close();
@@ -170,33 +187,68 @@ public class StatisticalActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(QueryResult result) {
-            // Định dạng số thành tiền tệ Việt Nam
             NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
-            // Tính tiền thưởng
             BigDecimal bonus = BigDecimal.ZERO;
             if (result.orderCount >= 10) {
-                int multiplier = result.orderCount / 10; // Bội số của 10
-                bonus = new BigDecimal(multiplier).multiply(new BigDecimal("50000")); // Thêm 50,000 VND cho mỗi 10 chuyến đi
+                int multiplier = result.orderCount / 10;
+                bonus = new BigDecimal(multiplier).multiply(new BigDecimal("50000"));
             }
 
-            // Thêm tiền thưởng vào tổng thu nhập
             BigDecimal totalIncomeWithBonus = result.totalIncome.add(bonus);
 
-            // Định dạng thu nhập từ các chuyến đi và tiền mặt đã thu
             String formattedIncome = currencyFormatter.format(totalIncomeWithBonus);
             String formattedCashCollected = currencyFormatter.format(result.totalCashCollected);
 
-            // Cập nhật giao diện người dùng
             tv_so_chuyen_di.setText(String.valueOf(result.orderCount));
             tv_thu_nhap_chuyen_di.setText(formattedIncome);
             tv_da_thu_tien_mat.setText(formattedCashCollected);
-            // Kiểm tra nếu tài xế đã đạt 20 chuyến đi và cập nhật cột flag
+
             if (result.orderCount >= 20) {
                 new UpdateFlagTask().execute(userId);
             }
         }
     }
+
+    private class CheckFlagTask extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected Integer doInBackground(String... params) {
+            String userId = params[0];
+            int flagValue = 0;
+
+            ConnectionClass connectionClass = new ConnectionClass();
+            Connection connection = connectionClass.conClass();
+
+            if (connection != null) {
+                try {
+                    String query = "SELECT flag FROM Users WHERE user_id = ?";
+                    PreparedStatement statement = connection.prepareStatement(query);
+                    statement.setString(1, userId);
+                    ResultSet resultSet = statement.executeQuery();
+
+                    if (resultSet.next()) {
+                        flagValue = resultSet.getInt("flag");
+                    }
+                    resultSet.close();
+                    statement.close();
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return flagValue;
+        }
+
+        @Override
+        protected void onPostExecute(Integer flagValue) {
+            if (flagValue == 1) {
+                Color_report.setBackgroundColor(COLOR_RED);
+            } else {
+                Color_report.setBackgroundColor(COLOR_GREEN);
+            }
+        }
+    }
+
     private class UpdateFlagTask extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
@@ -207,7 +259,6 @@ public class StatisticalActivity extends AppCompatActivity {
 
             if (connection != null) {
                 try {
-                    // Kiểm tra giá trị hiện tại của flag
                     String checkFlagQuery = "SELECT flag FROM Users WHERE user_id = ?";
                     PreparedStatement checkFlagStatement = connection.prepareStatement(checkFlagQuery);
                     checkFlagStatement.setString(1, userId);
@@ -220,7 +271,6 @@ public class StatisticalActivity extends AppCompatActivity {
                     flagResult.close();
                     checkFlagStatement.close();
 
-                    // Nếu flag hiện tại là 0, cập nhật flag thành 1
                     if (flag == 0) {
                         String updateFlagQuery = "UPDATE Users SET flag = 1 WHERE user_id = ?";
                         PreparedStatement updateFlagStatement = connection.prepareStatement(updateFlagQuery);
