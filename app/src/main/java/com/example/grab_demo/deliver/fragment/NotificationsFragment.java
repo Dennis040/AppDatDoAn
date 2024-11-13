@@ -20,6 +20,7 @@ import com.example.grab_demo.database.UserDataSource;
 import com.example.grab_demo.deliver.Adapter.DanhSachDonHangnewAdapter;
 import com.example.grab_demo.deliver.activity.EditProfileActivity;
 import com.example.grab_demo.deliver.activity.StatisticalActivity;
+import com.example.grab_demo.login.LoginActivity;
 import com.example.grab_demo.model.UserModel;
 
 import java.sql.Connection;
@@ -100,7 +101,8 @@ public class NotificationsFragment extends Fragment {
         buttonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logoutAndExit();
+                startActivity(new Intent(getActivity(), LoginActivity.class));
+                //logoutAndExit();
             }
         });
 

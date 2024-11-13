@@ -23,8 +23,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.grab_demo.R;
+import com.example.grab_demo.customer.adapter.C_VoucherAdapter;
 import com.example.grab_demo.customer.adapter.ListOrderAdapter;
+import com.example.grab_demo.customer.m_interface.StClickItem;
 import com.example.grab_demo.customer.model.Item;
+import com.example.grab_demo.customer.model.Voucher;
 import com.example.grab_demo.database.ConnectionClass;
 import com.example.grab_demo.zalopay.Api.CreateOrder;
 
@@ -39,6 +42,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -50,7 +54,9 @@ import vn.zalopay.sdk.listeners.PayOrderListener;
 
 public class CartActivity extends AppCompatActivity {
     private static final long REFRESH_INTERVAL = 1000; // 1s
-
+    RecyclerView rcv_voucher;
+    List<Voucher> voucherList;
+    C_VoucherAdapter voucherAdapter;
     Connection connection, connection2;
     String query, query2;
     Statement smt, smt2;
@@ -74,6 +80,8 @@ public class CartActivity extends AppCompatActivity {
     List<String> listpay = new ArrayList<>();
     int pay;
     int cateid;
+    int point =0;
+    int orderId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +100,8 @@ public class CartActivity extends AppCompatActivity {
 //        }
 
         // Truy vấn và cập nhật tên voucher
-        loadVoucherName(voucherId);
-
+//        loadVoucherName(voucherId);
+        loadDataPointUser();
         handler = new Handler(Looper.getMainLooper());
         refreshRunnable = new Runnable() {
             @Override
@@ -105,6 +113,26 @@ public class CartActivity extends AppCompatActivity {
         createDataSpinnerPay();
         zaloPay();
         addEvents();
+    }
+
+    private void loadDataPointUser() {
+        ConnectionClass sql = new ConnectionClass();
+        connection = sql.conClass();
+        if (connection != null) {
+            try {
+                query = "SELECT point FROM Users WHERE user_id = " + userId;
+                smt = connection.createStatement();
+                resultSet = smt.executeQuery(query);
+                while (resultSet.next()) {
+                    point = resultSet.getInt(1);
+                }
+                connection.close();
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
+        } else {
+            Log.e("Error: ", "Connection null");
+        }
     }
 
     private void zaloPay() {
@@ -136,6 +164,7 @@ public class CartActivity extends AppCompatActivity {
                     public void onPaymentSucceeded(String s, String s1, String s2) {
                         insertDataToOrder(userId,"e-wallet");
                         clearCartItems();
+                        clearCartI();
                         Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(CartActivity.this, HomeActivity.class));
                         finish();
@@ -250,9 +279,18 @@ public class CartActivity extends AppCompatActivity {
         // Giả sử giá trị shipMoney và voucher
 
         shipMoney = 50000;
-
-        // Tính toán Total Money
         totalMoney = orderMoney + shipMoney - voucher;
+        // Tính toán Total Money
+        if (point >= 2000) {
+           totalMoney *= 0.96;
+        } else if (point >= 1000) {
+            totalMoney *= 0.98;
+        }else if (point >= 5000) {
+            totalMoney *= 0.94;
+        }else if (point >= 10000) {
+            totalMoney *= 0.92;
+        }
+
 
         // Cập nhật giao diện người dùng trên UI thread
         runOnUiThread(new Runnable() {
@@ -310,9 +348,11 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (totalMoney > 50000) {
-                    Intent intent = new Intent(CartActivity.this, VoucherActivity.class);
-                    startActivity(intent);
-                    finish();
+//                    Intent intent = new Intent(CartActivity.this, VoucherActivity.class);
+//                    startActivity(intent);
+//                    finish();
+                    rcv_voucher.setVisibility(View.VISIBLE);
+                    loadDataVoucher();
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(CartActivity.this);
                     builder.setTitle("Thông báo");
@@ -334,8 +374,9 @@ public class CartActivity extends AppCompatActivity {
                     if (pay == 0) {
                         insertDataToOrder(userId,"cash");
                          clearCartItems(); // Xóa các item trong CartItems
+                        clearCartI();
                         Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
-                        finish();
+                        startActivity(new Intent(CartActivity.this, HomeActivity.class));
                     } else if (pay == 1) {
                         orderzalopay();
                     }
@@ -353,8 +394,86 @@ public class CartActivity extends AppCompatActivity {
                 }
             }
         });
+        voucherAdapter.setOnClickItemListener(new StClickItem() {
+            @Override
+            public void onClickItem(String data) {
+//                Intent intent = new Intent(CartActivity.this, CartActivity.class);
+//                intent.putExtra("voucher_id", Integer.parseInt(data));
+//                startActivity(intent);
+//                finish();
+                rcv_voucher.setVisibility(View.GONE);
+                voucherId = Integer.parseInt(data);
+                loadVoucherName(voucherId);
+            }
+        });
     }
 
+    private void loadDataVoucher() {
+        ConnectionClass sql = new ConnectionClass();
+        connection = sql.conClass();
+        if (connection != null) {
+            try {
+
+
+                query = "SELECT Vouchers.voucher_id, Vouchers.voucher_name, Vouchers.discount, Vouchers.end_date, Vouchers.quantity " +
+                        "FROM Vouchers " +
+                        "WHERE NOT EXISTS ( " +
+                        "    SELECT 1 FROM Orders " +
+                        "    WHERE Orders.voucher_id = Vouchers.voucher_id " +
+                        "    AND Orders.customer_id = " + userId +
+                        ")";
+
+                smt = connection.createStatement();
+                resultSet = smt.executeQuery(query);
+
+                voucherList.clear();
+                while (resultSet.next()) {
+                    int voucherId = resultSet.getInt(1);
+                    String voucherName = resultSet.getString(2);
+                    double discount = resultSet.getDouble(3);
+                    Date startDate = resultSet.getDate(4);
+                    int quantity = resultSet.getInt(5);
+                    voucherList.add(new Voucher(voucherId, voucherName, discount, startDate, quantity));
+                }
+                voucherAdapter.notifyDataSetChanged();
+                connection.close();
+
+            } catch (Exception e) {
+                Log.e("Error: ", Objects.requireNonNull(e.getMessage()));
+            }
+        } else {
+            Log.e("Error: ", "Connection null");
+        }
+    }
+    private void clearCartI() {
+        ConnectionClass sql = new ConnectionClass();
+        Connection connection = sql.conClass();
+
+        if (connection != null) {
+            try {
+                String deleteQuery = "DELETE FROM Cart WHERE store_id = (SELECT store_id FROM Orders WHERE order_id = " + orderId + ") AND customer_id = (SELECT customer_id FROM Orders WHERE order_id = " + orderId + ")";
+                PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery);
+                int rowsAffected = deleteStmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    Log.d("CartActivity", "Cart items cleared successfully");
+                } else {
+                    Log.e("CartActivity", "Failed to clear cart items");
+                }
+            } catch (SQLException e) {
+                Log.e("Error: ", Objects.requireNonNull(e.getMessage()));
+            } finally {
+                try {
+                    if (connection != null && !connection.isClosed()) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    Log.e("Error: ", Objects.requireNonNull(e.getMessage()));
+                }
+            }
+        } else {
+            Log.e("Error: ", "Connection null");
+        }
+    }
     private void clearCartItems() {
         ConnectionClass sql = new ConnectionClass();
         Connection connection = sql.conClass();
@@ -501,7 +620,7 @@ public class CartActivity extends AppCompatActivity {
                     //Lấy orderId đơn hàng vua them
                     ResultSet generatedKeys = insertStmt.getGeneratedKeys();
                     if (generatedKeys.next()) {
-                        int orderId = generatedKeys.getInt(1);
+                        orderId = generatedKeys.getInt(1);
 
                         // Truy vấn danh sách item_id và quantity từ CartItems
                         String query3 = "SELECT  item_id, quantity FROM CartItems"+
@@ -595,6 +714,13 @@ public class CartActivity extends AppCompatActivity {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         rcv_cart.setLayoutManager(linearLayoutManager);
+        rcv_voucher = findViewById(R.id.rcv_voucher_cart);
+        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        rcv_voucher.setLayoutManager(linearLayoutManager2);  // Set LayoutManager cho RecyclerView
+
+        voucherList = new ArrayList<>();
+        voucherAdapter = new C_VoucherAdapter(this, voucherList);
+        rcv_voucher.setAdapter(voucherAdapter);
     }
 
     @Override

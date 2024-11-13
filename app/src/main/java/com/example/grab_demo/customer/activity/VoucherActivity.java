@@ -1,6 +1,7 @@
 package com.example.grab_demo.customer.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,49 +30,59 @@ public class VoucherActivity extends AppCompatActivity {
     String query;
     Statement smt;
     ResultSet resultSet;
-
+    ArrayList<Integer> listvoucherid = new ArrayList<>();
     ImageView btn_back;
     RecyclerView rcv_voucher;
     List<Voucher> voucherList;
     C_VoucherAdapter voucherAdapter;
+    int user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voucher);
-
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        user_id = sharedPreferences.getInt("user_id", -1);
+        Log.e("userId", String.valueOf(user_id));
         addControls();
-
         loadData();
-
         addEvents();
     }
+
 
     private void loadData() {
         ConnectionClass sql = new ConnectionClass();
         connection = sql.conClass();
         if (connection != null) {
-            try {
-                query = "SELECT voucher_id, voucher_name, discount, start_date, quantity FROM Vouchers";
-                smt = connection.createStatement();
-                resultSet = smt.executeQuery(query);
+                try {
 
-                voucherList.clear();
-                while (resultSet.next()) {
-                    int voucherId = resultSet.getInt(1);
-                    String voucherName = resultSet.getString(2);
-                    double discount = resultSet.getDouble(3);
-                    Date startDate = resultSet.getDate(4);
-                    int quantity = resultSet.getInt(5);
 
-                    voucherList.add(new Voucher(voucherId, voucherName, discount, startDate, quantity));
+                    query = "SELECT Vouchers.voucher_id, Vouchers.voucher_name, Vouchers.discount, Vouchers.end_date, Vouchers.quantity " +
+                            "FROM Vouchers " +
+                            "WHERE NOT EXISTS ( " +
+                            "    SELECT 1 FROM Orders " +
+                            "    WHERE Orders.voucher_id = Vouchers.voucher_id " +
+                            "    AND Orders.customer_id = " + user_id +
+                            ")";
+
+                    smt = connection.createStatement();
+                    resultSet = smt.executeQuery(query);
+
+                    voucherList.clear();
+                    while (resultSet.next()) {
+                        int voucherId = resultSet.getInt(1);
+                        String voucherName = resultSet.getString(2);
+                        double discount = resultSet.getDouble(3);
+                        Date startDate = resultSet.getDate(4);
+                        int quantity = resultSet.getInt(5);
+                        voucherList.add(new Voucher(voucherId, voucherName, discount, startDate, quantity));
+                    }
+                    voucherAdapter.notifyDataSetChanged();
+                    connection.close();
+
+                } catch (Exception e) {
+                    Log.e("Error: ", Objects.requireNonNull(e.getMessage()));
                 }
-                voucherAdapter.notifyDataSetChanged();
-                connection.close();
-
-            } catch (Exception e) {
-                Log.e("Error: ", Objects.requireNonNull(e.getMessage()));
-            }
         } else {
             Log.e("Error: ", "Connection null");
         }

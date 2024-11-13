@@ -1,124 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:background="#F5F5F5"
-tools:context=".customer.fragment.ProfileFragment">
-
-<!-- Header -->
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/headerLayout"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"
-    app:layout_constraintTop_toTopOf="parent">
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".customer.fragment.ProfileFragment"
+    tools:ignore="MissingClass">
 
-    <TextView
-        android:id="@+id/txtGreeting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Xin chào Khang"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/imgProfile"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/user"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
-
-<!-- Star Rating Card -->
-<androidx.cardview.widget.CardView
-    android:id="@+id/ratingCard"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:layout_constraintTop_toBottomOf="@id/headerLayout">
-
-    <LinearLayout
+    <!-- Header -->
+    <!-- ConstraintLayout trong ScrollView -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:orientation="horizontal">
+        android:background="#FFFFFF">
+<!--        <ImageButton-->
+<!--            android:id="@+id/btnClose"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:layout_margin="16dp"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:src="@drawable/ic_close"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
+        <!-- Profile Image -->
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_star" />
+            android:id="@+id/imgProfile"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/user_iconplaystore"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnClose" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text="3 nhận xét · 0 lượt thích" />
-
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
-
-<!-- GrabUnlimited Banner -->
-<androidx.cardview.widget.CardView
-    android:id="@+id/unlimitedCard"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    app:cardCornerRadius="12dp"
-    android:backgroundTint="#FFF3E0"
-    app:layout_constraintTop_toBottomOf="@id/ratingCard">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
-
-<!--        <ImageView-->
-<!--            android:layout_width="24dp"-->
-<!--            android:layout_height="24dp"-->
-<!--            android:src="@drawable/ic_unlimited" />-->
-
-        <TextView
+        <!-- Points Section -->
+        <LinearLayout
+            android:id="@+id/pointsSection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Đăng ký Premium" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imgProfile">
 
 
+            <TextView
+                android:id="@+id/txt_point_customer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="0 Điểm"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/txt_rank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Sắt"
+                android:textSize="16sp" />
+        </LinearLayout>
 
-
-<!-- Menu Items -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    app:layout_constraintTop_toBottomOf="@id/unlimitedCard">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:orientation="horizontal">
-
-        <Button
+        <!-- Form Fields -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/btn_logout_customer"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toTopOf="@id/btnLogout"
+            app:layout_constraintTop_toBottomOf="@id/pointsSection">
+
+            <!-- Name Field -->
+            <TextView
+                android:id="@+id/edtName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:hint="Khang"
+                android:textSize="18dp"/>
+
+            <!-- Phone Field -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/vietnam" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="+84"
+                        android:textSize="18dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:background="@color/white"
+                    android:id="@+id/txt_phone_profile"
+                    android:hint="947479916"
+                    android:inputType="phone"
+                    android:textSize="18dp" />
+            </LinearLayout>
+
+            <!-- Email Field -->
+            <TextView
+                android:id="@+id/edtEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/white"
+                android:hint="phantuankhang333@gmail.com"
+                android:textSize="18dp" />
+
+
+
+
+
+            <!-- Profile Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Hồ sơ"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Business Profile Link -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Tạo hồ sơ doanh nghiệp"
+                android:textColor="#2196F3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Quản lý tốt hơn chi phí đi lại của bạn"
+                android:textColor="#666666" />
+
+            <!-- Connected Accounts -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Đã liên kết tài khoản"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Social Account Switches -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Google -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/google" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:text="Google" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- Facebook -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/facebook" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:text="Facebook" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Logout Button -->
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:backgroundTint="@color/white"
             android:text="Đăng xuất"
-            android:backgroundTint="@color/cam"/>
-    </LinearLayout>
+            android:textColor="#000000"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- Add other menu items similarly -->
-</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
