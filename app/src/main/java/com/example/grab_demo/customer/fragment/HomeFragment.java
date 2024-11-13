@@ -2,6 +2,7 @@ package com.example.grab_demo.customer.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.example.grab_demo.ChatBotActivity;
 import com.example.grab_demo.R;
 import com.example.grab_demo.customer.activity.CartActivity;
 import com.example.grab_demo.customer.activity.HomeActivity;
+import com.example.grab_demo.customer.activity.ListStoreCartActivity;
 import com.example.grab_demo.customer.activity.StoreListActivity;
 import com.example.grab_demo.customer.adapter.CategoryHomeAdapter;
 import com.example.grab_demo.customer.adapter.HomeSecondAdapter;
@@ -67,21 +69,33 @@ public class HomeFragment extends Fragment {
     private HomeActivity homeActivity;
     private Handler handler;
     private Runnable refreshRunnable;
-
+    private int userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_home2, container, false);
+        // Khởi tạo SharedPreferences
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+
+        // Lấy giá trị của user_id với giá trị mặc định là -1 nếu không có giá trị nào đã được lưu
+         userId = sharedPreferences.getInt("user_id", -1);
+
+        // Kiểm tra xem giá trị có tồn tại hay không
+        if (userId != -1) {
+            // Giá trị tồn tại, xử lý userId
+            Log.d("TAG", "User ID: " + userId);
+        } else {
+            // Giá trị không tồn tại
+            Log.d("TAG", "User ID chưa được lưu trong SharedPreferences");
+        }
 
         addControls();
 
         addEvents();
         startAutoSlide();
 
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        int userId = sharedPreferences.getInt("user_id", -1);
 
         if (userId != -1) {
             loadingData();
@@ -141,7 +155,7 @@ public class HomeFragment extends Fragment {
                 connection = sql.conClass();
                 if (connection != null) {
                     try {
-                        query = "SELECT COUNT(*) FROM CartItems WHERE cart_id = 1";
+                        query = "SELECT COUNT(*) FROM CartItems Inner Join Cart ON CartItems.cart_id = Cart.cart_id WHERE Cart.customer_id = " + userId;
                         smt = connection.createStatement();
                         resultSet = smt.executeQuery(query);
 
@@ -216,7 +230,7 @@ public class HomeFragment extends Fragment {
         img_cart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CartActivity.class);
+                Intent intent = new Intent(getActivity(), ListStoreCartActivity.class);
                 startActivity(intent);
             }
         });

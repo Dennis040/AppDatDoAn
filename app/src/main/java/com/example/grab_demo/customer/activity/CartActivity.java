@@ -43,10 +43,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-//import vn.zalopay.sdk.Environment;
-//import vn.zalopay.sdk.ZaloPayError;
-//import vn.zalopay.sdk.ZaloPaySDK;
-//import vn.zalopay.sdk.listeners.PayOrderListener;
+import vn.zalopay.sdk.Environment;
+import vn.zalopay.sdk.ZaloPayError;
+import vn.zalopay.sdk.ZaloPaySDK;
+import vn.zalopay.sdk.listeners.PayOrderListener;
 
 public class CartActivity extends AppCompatActivity {
     private static final long REFRESH_INTERVAL = 1000; // 1s
@@ -73,7 +73,7 @@ public class CartActivity extends AppCompatActivity {
     private Runnable refreshRunnable;
     List<String> listpay = new ArrayList<>();
     int pay;
-
+    int cateid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,15 +81,15 @@ public class CartActivity extends AppCompatActivity {
 
         addControls();
 
-        voucherId = getIntent().getIntExtra("voucher_id", -1);  // Lấy cate_id kiểu int với giá trị mặc định là -1
-
+//        voucherId = getIntent().getIntExtra("voucher_id", -1);  // Lấy cate_id kiểu int với giá trị mặc định là -1
+        storeId = getIntent().getIntExtra("store_id", -1);
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         userId = sharedPreferences.getInt("user_id", -1);
         Log.e("userId", String.valueOf(userId));
 
-        if (voucherId == -1) {
-            Log.e("CartActivity", "voucher_id is null");
-        }
+//        if (voucherId == -1) {
+//            Log.e("CartActivity", "voucher_id is null");
+//        }
 
         // Truy vấn và cập nhật tên voucher
         loadVoucherName(voucherId);
@@ -103,66 +103,67 @@ public class CartActivity extends AppCompatActivity {
             }
         };
         createDataSpinnerPay();
-        //zaloPay();
+        zaloPay();
         addEvents();
     }
 
-//    private void zaloPay() {
-//        StrictMode.ThreadPolicy policy = new
-//                StrictMode.ThreadPolicy.Builder().permitAll().build();
-//        StrictMode.setThreadPolicy(policy);
-//
-//        // ZaloPay SDK Init
-//        ZaloPaySDK.init(2553, Environment.SANDBOX);
-//    }
+    private void zaloPay() {
+        StrictMode.ThreadPolicy policy = new
+                StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
-//    private void orderzalopay() {
-//        //String totalText = String.valueOf(totalMoney).replaceAll("[^0-9]", ""); // Loại bỏ tất cả ký tự không phải số
-//        // Định dạng số mà không thêm dấu phân cách ngàn
-//        DecimalFormat df = new DecimalFormat("0.##");
-//        String totalText = df.format(totalMoney);
-//        Log.d("Amount",String.valueOf( totalMoney));
-//        CreateOrder orderApi = new CreateOrder();
-//        try {
-//            JSONObject data = orderApi.createOrder(totalText);
-//            Log.d("Amount", totalText);
-//            String code = data.getString("return_code");
-//            Toast.makeText(getApplicationContext(), "return_code: " + code, Toast.LENGTH_LONG).show();
-//
-//            if (code.equals("1")) {
-//                String token = data.getString("zp_trans_token");
-//                ZaloPaySDK.getInstance().payOrder(CartActivity.this, token, "demo://app", new PayOrderListener() {
-//                    @Override
-//                    public void onPaymentSucceeded(String s, String s1, String s2) {
-//                        insertDataToOrder(userId,"e-wallet");
-//                        Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
-//                        startActivity(new Intent(CartActivity.this, HomeActivity.class));
-//                        finish();
-//                    }
-//
-//                    @Override
-//                    public void onPaymentCanceled(String s, String s1) {
-//                        Toast.makeText(CartActivity.this, "Order Canceled!", Toast.LENGTH_SHORT).show();
-//                        Log.e("Order canceled","Order canceled");
-//                    }
-//
-//                    @Override
-//                    public void onPaymentError(ZaloPayError zaloPayError, String s, String s1) {
-//                        Toast.makeText(CartActivity.this, "Order Failed!", Toast.LENGTH_SHORT).show();
-//                        Log.e("Order Failed","Order Failed");
-//                    }
-//                });
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        super.onNewIntent(intent);
-//        ZaloPaySDK.getInstance().onResult(intent);
-//    }
+        // ZaloPay SDK Init
+        ZaloPaySDK.init(2553, Environment.SANDBOX);
+    }
+
+    private void orderzalopay() {
+        //String totalText = String.valueOf(totalMoney).replaceAll("[^0-9]", ""); // Loại bỏ tất cả ký tự không phải số
+        // Định dạng số mà không thêm dấu phân cách ngàn
+        DecimalFormat df = new DecimalFormat("0.##");
+        String totalText = df.format(totalMoney);
+        Log.d("Amount",String.valueOf( totalMoney));
+        CreateOrder orderApi = new CreateOrder();
+        try {
+            JSONObject data = orderApi.createOrder(totalText);
+            Log.d("Amount", totalText);
+            String code = data.getString("return_code");
+            Toast.makeText(getApplicationContext(), "return_code: " + code, Toast.LENGTH_LONG).show();
+
+            if (code.equals("1")) {
+                String token = data.getString("zp_trans_token");
+                ZaloPaySDK.getInstance().payOrder(CartActivity.this, token, "demo://app", new PayOrderListener() {
+                    @Override
+                    public void onPaymentSucceeded(String s, String s1, String s2) {
+                        insertDataToOrder(userId,"e-wallet");
+                        clearCartItems();
+                        Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(CartActivity.this, HomeActivity.class));
+                        finish();
+                    }
+
+                    @Override
+                    public void onPaymentCanceled(String s, String s1) {
+                        Toast.makeText(CartActivity.this, "Order Canceled!", Toast.LENGTH_SHORT).show();
+                        Log.e("Order canceled","Order canceled");
+                    }
+
+                    @Override
+                    public void onPaymentError(ZaloPayError zaloPayError, String s, String s1) {
+                        Toast.makeText(CartActivity.this, "Order Failed!", Toast.LENGTH_SHORT).show();
+                        Log.e("Order Failed","Order Failed");
+                    }
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        ZaloPaySDK.getInstance().onResult(intent);
+    }
     private void loadVoucherName(int voucherId) {
         ConnectionClass sql = new ConnectionClass();
         connection = sql.conClass();
@@ -179,7 +180,10 @@ public class CartActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             txt_name_voucher.setText(voucherName);
-                            txt_voucher.setText(String.valueOf(discount));
+                            NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                            String formattedPrice = formatter.format(discount);
+                            txt_voucher.setText(formattedPrice);
+                            //txt_voucher.setText(String.valueOf(discount));
                             voucher = discount;
                         }
                     });
@@ -210,7 +214,8 @@ public class CartActivity extends AppCompatActivity {
             try {
                 query = "SELECT Items.item_id, Items.item_name, Items.price, Items.image, CartItems.quantity FROM CartItems " +
                         "JOIN Items ON CartItems.item_id = Items.item_id " +
-                        "WHERE CartItems.cart_id = 1"; // Sử dụng cart_id thật của bạn
+                        "JOIN Cart ON CartItems.cart_id = Cart.cart_id "  +
+                        "WHERE Cart.customer_id = " + userId + "AND Cart.store_id = " + storeId; // Sử dụng cart_id thật của bạn
                 smt = connection.createStatement();
                 resultSet = smt.executeQuery(query);
 
@@ -328,11 +333,11 @@ public class CartActivity extends AppCompatActivity {
                 if (orderMoney > 0) {
                     if (pay == 0) {
                         insertDataToOrder(userId,"cash");
-//                clearCartItems(); // Xóa các item trong CartItems
+                         clearCartItems(); // Xóa các item trong CartItems
                         Toast.makeText(CartActivity.this, "Order successfully!", Toast.LENGTH_SHORT).show();
                         finish();
                     } else if (pay == 1) {
-                        //orderzalopay();
+                        orderzalopay();
                     }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(CartActivity.this);
@@ -356,7 +361,7 @@ public class CartActivity extends AppCompatActivity {
 
         if (connection != null) {
             try {
-                String deleteQuery = "DELETE FROM CartItems WHERE cart_id = 1"; // Sử dụng cart_id thật của bạn
+                String deleteQuery = "DELETE FROM CartItems WHERE cart_id IN (SELECT cart_id FROM Cart WHERE customer_id = " + userId + ")";
                 PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery);
                 int rowsAffected = deleteStmt.executeUpdate();
                 if (rowsAffected > 0) {
@@ -462,7 +467,7 @@ public class CartActivity extends AppCompatActivity {
 //                }
 
                 // Lấy store_id từ CartItems
-                String query1 = "SELECT i.store_id FROM CartItems c JOIN Items i ON c.item_id = i.item_id WHERE c.cart_id = 1";
+                String query1 = "SELECT i.store_id FROM CartItems c JOIN Items i ON c.item_id = i.item_id JOIN Cart ca ON c.cart_id = ca.cart_id WHERE ca.customer_id = " + userId;
                 PreparedStatement insertStmt1 = connection2.prepareStatement(query1);
                 ResultSet rs = insertStmt1.executeQuery();
                 int storeId = -1;
@@ -480,8 +485,8 @@ public class CartActivity extends AppCompatActivity {
                 PreparedStatement insertStmt = connection2.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                 insertStmt.setInt(1, customerId);
                 insertStmt.setInt(2, storeId);
-                insertStmt.setDouble(3, deliveryPrice*100);
-                insertStmt.setDouble(4, totalPrice*100);
+                insertStmt.setDouble(3, deliveryPrice*1000);
+                insertStmt.setDouble(4, totalPrice*1000);
                 insertStmt.setString(5, cash);
                 if (voucherId == -1) { // Kiểm tra nếu voucherId là null
                     insertStmt.setNull(6, java.sql.Types.INTEGER);
@@ -499,7 +504,8 @@ public class CartActivity extends AppCompatActivity {
                         int orderId = generatedKeys.getInt(1);
 
                         // Truy vấn danh sách item_id và quantity từ CartItems
-                        String query3 = "SELECT cart_id, item_id, quantity FROM CartItems WHERE cart_id = 1";
+                        String query3 = "SELECT  item_id, quantity FROM CartItems"+
+                                "JOIN Cart ON CartItems.cart_id = Cart.cart_id  WHERE Cart.customer_id = " + userId + "AND Cart.store_id = " + storeId;
                         PreparedStatement stmtDetails = connection2.prepareStatement(query3);
                         ResultSet rsDetails = stmtDetails.executeQuery();
 

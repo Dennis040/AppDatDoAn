@@ -25,11 +25,6 @@
                 <ImageButton
                     android:layout_width="35dp"
                     android:layout_height="35dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/ic_back" />
-                <ImageButton
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
                     android:layout_marginStart="5dp"
                     android:id="@+id/btn_chatbot"
                     android:layout_gravity="center"
@@ -52,6 +47,7 @@
                         android:id="@+id/img_cart"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+
                         android:foregroundGravity="center"
                         android:src="@drawable/ic_cart" />
 

@@ -84,7 +84,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 if (resultSet.next()) {
                     NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                     String formattedPrice = formatter.format(resultSet.getDouble(1));
-                    final double discount = resultSet.getDouble(1);
+                    //final double discount = resultSet.getDouble(1);
                     txt_voucher.setText(formattedPrice);
                 }
                 connection.close();

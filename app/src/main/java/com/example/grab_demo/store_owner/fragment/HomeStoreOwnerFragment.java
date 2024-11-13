@@ -52,7 +52,8 @@ public class HomeStoreOwnerFragment extends Fragment {
     List<String> listIDStore = new ArrayList<>();
     String storeID;
     int month, day, year;
-    Double revenueToday = 0.0, revenueYesterday = 0.0;
+    Double revenueToday = 0.0;
+    Double revenueYesterday = 0.0;
     LinearLayout LN_revenue_HSO;
     private int currentPage = 0;
     private Timer timer;
@@ -278,7 +279,7 @@ public class HomeStoreOwnerFragment extends Fragment {
         if (connection != null) {
             try {
 
-                String query = "SELECT updated_at,delivery_price,total_price FROM Orders WHERE store_id = " + storeID;
+                String query = "SELECT updated_at,delivery_price,total_price FROM Orders WHERE store_id = " + storeID + "AND status = 'delivered' ";
                 smt = connection.createStatement();
                 resultSet = smt.executeQuery(query);
                 while (resultSet.next()) {
@@ -315,7 +316,7 @@ public class HomeStoreOwnerFragment extends Fragment {
         if (connection != null) {
             try {
 
-                String query = "SELECT updated_at,delivery_price,total_price FROM Orders WHERE store_id = " + storeID;
+                String query ="SELECT updated_at,delivery_price,total_price FROM Orders WHERE store_id = " + storeID + "AND status = 'delivered' ";
                 smt = connection.createStatement();
                 resultSet = smt.executeQuery(query);
                 while (resultSet.next()) {
@@ -332,7 +333,8 @@ public class HomeStoreOwnerFragment extends Fragment {
                         BigDecimal total_price = resultSet.getBigDecimal(3);
                         BigDecimal delivery_price = resultSet.getBigDecimal(2);
                         if (total_price != null && delivery_price != null) {
-                            revenueYesterday += (total_price.subtract(delivery_price).doubleValue());
+                            //revenueYesterday += (total_price.subtract(delivery_price).doubleValue());
+                            revenueYesterday += total_price.doubleValue();
                             Log.d("RevenueYesterday", String.valueOf(revenueYesterday));
                         } else {
                             Log.e("Error", "total_price or delivery_price is null");

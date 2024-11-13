@@ -39,7 +39,7 @@ public class StoreMenuActivity extends AppCompatActivity {
     ImageButton btn_back;
     ImageView img_bg;
     TextView txt_store_name;
-
+    int storeId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +47,7 @@ public class StoreMenuActivity extends AppCompatActivity {
 
         addControls();
 
-        int storeId = getIntent().getIntExtra("store_id", -1);  // Lấy cate_id kiểu int với giá trị mặc định là -1
+        storeId = getIntent().getIntExtra("store_id", -1);  // Lấy cate_id kiểu int với giá trị mặc định là -1
         if (storeId != -1) {
             loadData(storeId);
             loadStoreData(storeId);
@@ -73,6 +73,7 @@ public class StoreMenuActivity extends AppCompatActivity {
             public void onClickItem(String data) {
                 Intent intent = new Intent(StoreMenuActivity.this, OrderActivity.class);
                 intent.putExtra("item_id", Integer.parseInt(data));
+                intent.putExtra("store_id",storeId);
                 startActivity(intent);
             }
         });

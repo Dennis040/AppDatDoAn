@@ -1,7 +1,10 @@
 package com.example.grab_demo.customer.activity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,8 +22,12 @@ import com.example.grab_demo.database.ConnectionClass;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -34,14 +41,30 @@ public class OrderActivity extends AppCompatActivity {
     Button btn_order;
     TextView txt_item_name, txt_price, txt_description, txt_quantity;
     ImageView img_circle;
-
+    private int userId;
     int itemId;
-
+    int cartId;
+    int storeId;
+    Timestamp currentTimestamp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_oder);
+        // Khởi tạo SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
+        // Lấy giá trị của user_id với giá trị mặc định là -1 nếu không có giá trị nào đã được lưu
+        userId = sharedPreferences.getInt("user_id", -1);
+        storeId = getIntent().getIntExtra("store_id", -1);
+
+        // Kiểm tra xem giá trị có tồn tại hay không
+        if (userId != -1) {
+            // Giá trị tồn tại, xử lý userId
+            Log.d("TAG", "User ID: " + userId);
+        } else {
+            // Giá trị không tồn tại
+            Log.d("TAG", "User ID chưa được lưu trong SharedPreferences");
+        }
         addControls();
 
         itemId = getIntent().getIntExtra("item_id", -1);  // Lấy cate_id kiểu int với giá trị mặc định là -1
@@ -102,8 +125,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 insertDataToCart(itemId);
-                Toast.makeText(OrderActivity.this, "Add to cart successfully!", Toast.LENGTH_SHORT).show();
-                finish();
+
             }
         });
     }
@@ -113,10 +135,23 @@ public class OrderActivity extends AppCompatActivity {
         connection2 = sql.conClass();
         if (connection2 != null) {
             try {
+                loadDataCart();
+                if(cartId <= 0)
+                {
+                    query2 = "Insert into Cart (customer_id,created_at,updated_at,store_id) values (?,?,?,?)";
+                    PreparedStatement insertStmt = connection2.prepareStatement(query2);
+                    insertStmt.setInt(1, userId);
+                    insertStmt.setTimestamp(2, currentTimestamp);  // created_at
+                    insertStmt.setTimestamp(3, currentTimestamp);  // updated_at
+                    insertStmt.setInt(4,storeId);
+                    // Thực thi câu truy vấn
+                    insertStmt.executeUpdate();
+                }
+                loadDataCart();
                 // Kiểm tra xem item có tồn tại trong CartItems chưa
                 query2 = "SELECT quantity FROM CartItems WHERE cart_id = ? AND item_id = ?";
                 PreparedStatement checkStmt = connection2.prepareStatement(query2);
-                checkStmt.setInt(1, 1);  // Giả sử cart_id là 1, bạn có thể thay đổi giá trị này theo yêu cầu của bạn
+                checkStmt.setInt(1, cartId);  // Giả sử cart_id là 1, bạn có thể thay đổi giá trị này theo yêu cầu của bạn
                 checkStmt.setInt(2, itemId);
 
                 ResultSet resultSet = checkStmt.executeQuery();
@@ -128,12 +163,14 @@ public class OrderActivity extends AppCompatActivity {
                     query2 = "UPDATE CartItems SET quantity = ? WHERE cart_id = ? AND item_id = ?";
                     PreparedStatement updateStmt = connection2.prepareStatement(query2);
                     updateStmt.setInt(1, newQuantity);
-                    updateStmt.setInt(2, 1);  // cart_id
+                    updateStmt.setInt(2, cartId);  // cart_id
                     updateStmt.setInt(3, itemId);
 
                     int rowsAffected = updateStmt.executeUpdate();
                     if (rowsAffected > 0) {
                         Log.d("OrderActivity", "Update successfully");
+                        Toast.makeText(OrderActivity.this, "Add to cart successfully!", Toast.LENGTH_SHORT).show();
+                        finish();
                     } else {
                         Log.e("OrderActivity", "Update failed");
                     }
@@ -141,13 +178,15 @@ public class OrderActivity extends AppCompatActivity {
                     // Nếu item chưa tồn tại, chèn vào bảng với số lượng là 1
                     query2 = "INSERT INTO CartItems (cart_id, item_id, quantity) VALUES (?, ?, ?)";
                     PreparedStatement insertStmt = connection2.prepareStatement(query2);
-                    insertStmt.setInt(1, 1);  // cart_id
+                    insertStmt.setInt(1, cartId);  // cart_id
                     insertStmt.setInt(2, itemId);
                     insertStmt.setInt(3, 1);  // quantity là 1
 
                     int rowsAffected = insertStmt.executeUpdate();
                     if (rowsAffected > 0) {
                         Log.d("OrderActivity", "Insert successfully");
+                        Toast.makeText(OrderActivity.this, "Add to cart successfully!", Toast.LENGTH_SHORT).show();
+                        finish();
                     } else {
                         Log.e("OrderActivity", "Insert failed");
                     }
@@ -159,6 +198,25 @@ public class OrderActivity extends AppCompatActivity {
             }
         } else {
             Log.e("Error: ", "Connection null");
+        }
+    }
+
+    private void loadDataCart() throws SQLException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Lấy thời gian hiện tại với định dạng chuẩn
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDateTime = LocalDateTime.now().format(formatter);
+
+            // Chuyển đổi sang Timestamp
+            currentTimestamp = Timestamp.valueOf(formattedDateTime);
+        }
+        query2 = "SELECT cart_id FROM Cart WHERE customer_id = ?";
+        PreparedStatement checkStmtUser = connection2.prepareStatement(query2);
+        checkStmtUser.setInt(1, userId);
+        ResultSet resultSetUser = checkStmtUser.executeQuery();
+        if(resultSetUser.next())
+        {
+            cartId = resultSetUser.getInt(1);
         }
     }
 

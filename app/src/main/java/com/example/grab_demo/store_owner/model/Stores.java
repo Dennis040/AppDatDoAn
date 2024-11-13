@@ -28,6 +28,11 @@ public class Stores {
         this.giodongcua = giodongcua;
     }
 
+    public Stores(byte[] hinh, String tensp) {
+        this.hinh = hinh;
+        this.tensp = tensp;
+    }
+
     public Stores(byte[] hinh, int id, int owner_id, String tensp, Date updated_at) {
         this.hinh = hinh;
         this.id = id;

@@ -24,13 +24,24 @@
         android:theme="@style/Theme.Grab_Demo"
         tools:targetApi="31">
         <activity
+            android:name=".customer.activity.ListStoreCartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".customer.activity.DetailUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".store_owner.activity.OrderDetailSOActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChatBotActivity"
-            android:exported="true" >
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+            android:exported="true">
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".store_owner.activity.ThongKeActivity"

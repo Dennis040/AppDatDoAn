@@ -1,6 +1,9 @@
 package com.example.grab_demo.customer.adapter;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -33,6 +36,7 @@ public class ListOrderAdapter extends RecyclerView.Adapter<ListOrderAdapter.Home
     List<Item> itemList;
     private StClickItem stClickItem;
     private OnQuantityChangeListener quantityChangeListener;
+    private int userId;
 
 
     public ListOrderAdapter(Context context, List<Item> itemList) {
@@ -52,6 +56,8 @@ public class ListOrderAdapter extends RecyclerView.Adapter<ListOrderAdapter.Home
     @Override
     public HomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_list_order, parent, false);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        userId = sharedPreferences.getInt("user_id", -1);
         return new HomeViewHolder(view);
     }
 
@@ -120,7 +126,7 @@ public class ListOrderAdapter extends RecyclerView.Adapter<ListOrderAdapter.Home
             }
         });
 
-        updateQuantity(holder, item);
+        //updateQuantity(holder, item);
 
     }
 
