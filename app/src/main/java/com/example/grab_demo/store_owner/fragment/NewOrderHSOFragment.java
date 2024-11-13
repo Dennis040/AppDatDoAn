@@ -18,6 +18,7 @@ import com.example.grab_demo.customer.activity.OrderDetailsActivity;
 import com.example.grab_demo.customer.m_interface.StClickItem2;
 import com.example.grab_demo.database.ConnectionClass;
 import com.example.grab_demo.store_owner.OnItemClickListener;
+import com.example.grab_demo.store_owner.activity.OrderDetailSOActivity;
 import com.example.grab_demo.store_owner.activity.OrderHomeStoreOwnerActivity;
 import com.example.grab_demo.store_owner.adapter.NewOrderAdapter;
 import com.example.grab_demo.store_owner.model.Order;
@@ -87,7 +88,7 @@ public class NewOrderHSOFragment extends Fragment {
 
             @Override
             public void onItemClickID(int data) {
-                Intent intent = new Intent(getActivity(), OrderDetailsActivity.class);
+                Intent intent = new Intent(getActivity(), OrderDetailSOActivity.class);
                 intent.putExtra("order_id", data);
                 startActivity(intent);
             }

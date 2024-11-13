@@ -1,5 +1,6 @@
 package com.example.grab_demo.store_owner.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.grab_demo.R;
 import com.example.grab_demo.database.ConnectionClass;
+import com.example.grab_demo.store_owner.OnItemClickListener;
+import com.example.grab_demo.store_owner.activity.OrderDetailSOActivity;
 import com.example.grab_demo.store_owner.activity.OrderHomeStoreOwnerActivity;
 import com.example.grab_demo.store_owner.adapter.NewOrderAdapter;
 import com.example.grab_demo.store_owner.model.Order;
@@ -77,6 +80,29 @@ public class HistoryOrderHSOFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 historyOrderHSOAdapter.getFilter().filter(newText);
                 return false;
+            }
+        });
+        historyOrderHSOAdapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(String data) {
+
+            }
+
+            @Override
+            public void onItemClickIStoreRegistration(int data, String name) {
+
+            }
+
+            @Override
+            public void onItemClickMessage(int orderId, int voucherId) {
+
+            }
+
+            @Override
+            public void onItemClickID(int data) {
+                Intent intent = new Intent(getActivity(), OrderDetailSOActivity.class);
+                intent.putExtra("order_id", data);
+                startActivity(intent);
             }
         });
     }

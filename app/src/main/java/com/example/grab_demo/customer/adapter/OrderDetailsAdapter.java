@@ -48,11 +48,11 @@ public class OrderDetailsAdapter extends RecyclerView.Adapter<OrderDetailsAdapte
         OrderDetails orderDetails = storeList.get(position);
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         holder.txt_item_name.setText(getItemName(orderDetails.getItemId()));
-        String formattedPrice = formatter.format(orderDetails.getPrice());
+        String formattedPrice = formatter.format(orderDetails.getPrice()/100);
         holder.txt_item_price.setText(formattedPrice);
         holder.txt_item_quantity.setText(String.valueOf(orderDetails.getQuantity()));
 
-        formattedPrice = formatter.format(orderDetails.getPrice() * orderDetails.getQuantity());
+        formattedPrice = formatter.format(orderDetails.getPrice() * orderDetails.getQuantity() / 100);
         holder.txt_item_total.setText(formattedPrice);
 
     }
