@@ -21,6 +21,7 @@ import com.example.grab_demo.store_owner.model.Stores;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -74,7 +75,7 @@ public class ListStoreCartActivity extends AppCompatActivity {
         }
     }
 
-    private void loadDataStore() {
+    private void loadDataStore() throws SQLException {
         ConnectionClass sql = new ConnectionClass();
         connection = sql.conClass();
         if (connection != null) {
@@ -91,13 +92,13 @@ public class ListStoreCartActivity extends AppCompatActivity {
                             byte[] image = resultSet.getBytes(2);
                             arr.add(new Stores(image, storeName));
                         }
-                        connection.close();
 
                     } catch (Exception e) {
                         Log.e("Error: ", e.getMessage());
                     }
                 }
             }
+            connection.close();
         } else {
             Log.e("Error: ", "Connection null");
         }

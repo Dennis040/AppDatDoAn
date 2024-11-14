@@ -210,9 +210,10 @@ public class OrderActivity extends AppCompatActivity {
             // Chuyển đổi sang Timestamp
             currentTimestamp = Timestamp.valueOf(formattedDateTime);
         }
-        query2 = "SELECT cart_id FROM Cart WHERE customer_id = ?";
+        query2 = "SELECT cart_id FROM Cart WHERE customer_id = ? AND store_id = ?";
         PreparedStatement checkStmtUser = connection2.prepareStatement(query2);
         checkStmtUser.setInt(1, userId);
+        checkStmtUser.setInt(2,storeId);
         ResultSet resultSetUser = checkStmtUser.executeQuery();
         if(resultSetUser.next())
         {

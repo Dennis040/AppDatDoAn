@@ -1,7 +1,7 @@
 package com.example.grab_demo.customer.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,11 +27,11 @@ public class ProfileFragment extends Fragment {
     Button btnLogout;
     Statement smt;
     ResultSet resultSet;
-    TextView txt_name, txt_phone, txt_email, txt_point,txt_rank;
+    TextView txt_name, txt_phone, txt_email, txt_point, txt_rank;
     private View view;
     private HomeActivity homeActivity;
     private int userId;
-    int point=0;
+    int point = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,24 +39,18 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_profile, container, false);
         addControls();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", 0);
-        userId = sharedPreferences.getInt("userId", -1);
+        if (getActivity() instanceof HomeActivity) {
+            homeActivity = (HomeActivity) getActivity();
+            userId = Integer.parseInt(homeActivity.getUserId());
+            Log.e("userId", String.valueOf(userId));
+        }
+//        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+//        userId = sharedPreferences.getInt("userId", -1);
         Log.e("HomeFragment", String.valueOf(userId));
 
         if (userId != -1) {
             loadData(); // Load data using userId
-            point = Integer.parseInt(txt_point.getText().toString());
-            if (point >= 2000) {
-                txt_rank.setText("Bạc");
-            } else if (point >= 1000) {
-                txt_rank.setText("Đồng");
-            }else if (point >= 5000) {
-                txt_rank.setText("Vàng");
-            }else if (point >= 10000) {
-                txt_rank.setText("Kim cương");
-            } else {
-                txt_rank.setText("Sắt");
-            }
+//            point = Integer.parseInt(txt_point.getText().toString());
             btnLogout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -78,6 +72,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadData() {
         ConnectionClass sql = new ConnectionClass();
         connection = sql.conClass();
@@ -86,25 +81,50 @@ public class ProfileFragment extends Fragment {
                 query = "SELECT username, email, phone_number, point FROM Users WHERE user_id = " + userId;
                 smt = connection.createStatement();
                 resultSet = smt.executeQuery(query);
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     txt_name.setText(resultSet.getString(1));
                     txt_phone.setText(resultSet.getString(3));
                     txt_email.setText(resultSet.getString(2));
-                    txt_point.setText(resultSet.getString(4) + " Điểm");
+                    point = resultSet.getInt(4);
+                    txt_point.setText(point + " Điểm");
+                    loadRank();
                 }
-                connection.close();
             } catch (Exception e) {
                 Log.e("Error: ", e.getMessage());
+            } finally {
+                try {
+                    if (connection != null && !connection.isClosed()) {
+                        connection.close();
+                    }
+                } catch (Exception e) {
+                    Log.e("Error: ", "Failed to close connection: " + e.getMessage());
+                }
             }
         } else {
             Log.e("Error: ", "Connection null");
         }
     }
 
+
+    private void loadRank() {
+        if (point >= 10000) {
+            txt_rank.setText("Kim cương");
+        } else if (point >= 5000) {
+            txt_rank.setText("Vàng");
+        } else if (point >= 2000) {
+            txt_rank.setText("Bạc");
+        } else if (point >= 1000) {
+            txt_rank.setText("Đồng");
+        } else {
+            txt_rank.setText("Sắt");
+        }
+    }
+
+
     private void addControls() {
-        txt_name = view.findViewById(R.id.edt_name);
+        txt_name = view.findViewById(R.id.edtName_profile);
         txt_phone = view.findViewById(R.id.txt_phone_profile);
-        txt_email = view.findViewById(R.id.edtEmail);
+        txt_email = view.findViewById(R.id.edtEmail_profile);
         txt_point = view.findViewById(R.id.txt_point_customer);
         txt_rank = view.findViewById(R.id.txt_rank);
         btnLogout = view.findViewById(R.id.btnLogout);

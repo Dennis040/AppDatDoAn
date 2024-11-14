@@ -76,7 +76,7 @@
 
             <!-- Name Field -->
             <TextView
-                android:id="@+id/edtName"
+                android:id="@+id/edtName_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
@@ -120,7 +120,7 @@
 
             <!-- Email Field -->
             <TextView
-                android:id="@+id/edtEmail"
+                android:id="@+id/edtEmail_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
