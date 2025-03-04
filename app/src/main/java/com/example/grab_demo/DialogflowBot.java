@@ -32,25 +32,25 @@ public class DialogflowBot {
         void onError(String error);
     }
 
-    public DialogflowBot(Context context) {
-        try {
-            // Đọc file credentials
-            InputStream stream = context.getResources().openRawResource(R.raw.chatbot);
-            GoogleCredentials credentials = GoogleCredentials.fromStream(stream)
-                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
-
-            // Khởi tạo session
-            SessionsSettings.Builder settingsBuilder = SessionsSettings.newBuilder();
-            SessionsSettings sessionsSettings = settingsBuilder
-                    .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                    .build();
-            sessionsClient = SessionsClient.create(sessionsSettings);
-            sessionName = SessionName.of(PROJECT_ID, UUID.randomUUID().toString());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public DialogflowBot(Context context) {
+//        try {
+//            // Đọc file credentials
+//            InputStream stream = context.getResources().openRawResource(R.raw.chatbot);
+//            GoogleCredentials credentials = GoogleCredentials.fromStream(stream)
+//                    .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+//
+//            // Khởi tạo session
+//            SessionsSettings.Builder settingsBuilder = SessionsSettings.newBuilder();
+//            SessionsSettings sessionsSettings = settingsBuilder
+//                    .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+//                    .build();
+//            sessionsClient = SessionsClient.create(sessionsSettings);
+//            sessionName = SessionName.of(PROJECT_ID, UUID.randomUUID().toString());
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public void sendMessage(String message, final BotResponseCallback callback) {
         if (sessionsClient == null) {

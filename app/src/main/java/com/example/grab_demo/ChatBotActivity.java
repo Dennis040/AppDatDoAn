@@ -42,7 +42,7 @@ public class ChatBotActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat_bot);
 
         // Khởi tạo DialogflowBot
-        dialogflowBot = new DialogflowBot(this);
+        //dialogflowBot = new DialogflowBot(this);
 
         // Khởi tạo views
         chipGroup = findViewById(R.id.chipGroup);
